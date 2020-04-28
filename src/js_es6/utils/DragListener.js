@@ -1,17 +1,12 @@
-import EventEmitter from '../utils/EventEmitter'
-import {
-    fnBind, 
-    getTouchEvent
-} from '../utils/utils'
-import $ from 'jquery'
+import EventEmitter from "../utils/EventEmitter";
+import { fnBind, getTouchEvent } from "../utils/utils";
+import $ from "jquery";
 
 export default class DragListener extends EventEmitter {
     constructor(eElement, nButtonCode) {
-
         super();
 
-        this._timeout = null
-
+        this._timeout = null;
 
         this._eElement = $(eElement);
         this._oDocument = $(document);
@@ -40,13 +35,20 @@ export default class DragListener extends EventEmitter {
         this._fUp = fnBind(this.onMouseUp, this);
         this._fDown = fnBind(this.onMouseDown, this);
 
+        // VEGA: Bind click method
+        this._fClick = fnBind(this.onClick, this);
 
-        this._eElement.on('mousedown touchstart', this._fDown);
+        this._eElement.on("mousedown touchstart", this._fDown);
+
+        // VEGA: Add a click listener if the element is our custom add button
+        if (this._eElement.hasClass("add-target")) {
+            this._eElement.on("click", this._fClick);
+        }
     }
 
     destroy() {
-        this._eElement.unbind('mousedown touchstart', this._fDown);
-        this._oDocument.unbind('mouseup touchend', this._fUp);
+        this._eElement.unbind("mousedown touchstart", this._fDown);
+        this._oDocument.unbind("mouseup touchend", this._fUp);
         this._eElement = null;
         this._oDocument = null;
         this._eBody = null;
@@ -61,10 +63,15 @@ export default class DragListener extends EventEmitter {
             this._nOriginalX = coordinates.x;
             this._nOriginalY = coordinates.y;
 
-            this._oDocument.on('mousemove touchmove', this._fMove);
-            this._oDocument.one('mouseup touchend', this._fUp);
+            this._oDocument.on("mousemove touchmove", this._fMove);
+            this._oDocument.one("mouseup touchend", this._fUp);
+            // VEGA: Bind keydown listener only after an initial mouse down. IE we are in drag mode
+            this._oDocument.on("keydown", this._fKeyDown);
 
-            this._timeout = setTimeout(fnBind(this._startDrag, this), this._nDelay);
+            this._timeout = setTimeout(
+                fnBind(this._startDrag, this),
+                this._nDelay
+            );
         }
     }
 
@@ -88,7 +95,7 @@ export default class DragListener extends EventEmitter {
             }
 
             if (this._bDragging) {
-                this.emit('drag', this._nX, this._nY, oEvent);
+                this.emit("drag", this._nX, this._nY, oEvent);
             }
         }
     }
@@ -96,32 +103,62 @@ export default class DragListener extends EventEmitter {
     onMouseUp(oEvent) {
         if (this._timeout != null) {
             clearTimeout(this._timeout);
-            this._eBody.removeClass('lm_dragging');
-            this._eElement.removeClass('lm_dragging');
-            this._oDocument.find('iframe').css('pointer-events', '');
-            this._oDocument.unbind('mousemove touchmove', this._fMove);
-            this._oDocument.unbind('mouseup touchend', this._fUp);
+            this._eBody.removeClass("lm_dragging");
+            this._eElement.removeClass("lm_dragging");
+            this._oDocument.find("iframe").css("pointer-events", "");
+            this._oDocument.unbind("mousemove touchmove", this._fMove);
+            this._oDocument.unbind("mouseup touchend", this._fUp);
+            // VEGA: Unbind keydown listener when we mouse up
+            this._oDocument.unbind("keydown", this._fKeyDown);
 
             if (this._bDragging === true) {
                 this._bDragging = false;
-                this.emit('dragStop', oEvent, this._nOriginalX + this._nX);
+                this.emit("dragStop", oEvent, this._nOriginalX + this._nX);
+            }
+        }
+    }
+
+    /**
+     * VEGA: After clicking an add-target add mousemove and mouse up handlers and start drag mode
+     */
+    onClick() {
+        this._oDocument.on("mousemove touchmove", this._fMove);
+        this._oDocument.one("mouseup touchend", this._fUp);
+        this._oDocument.on("keydown", this._fKeyDown);
+        this._timeout = setTimeout(fnBind(this._startDrag, this), this._nDelay);
+    }
+
+    /**
+     * VEGA: Handler for key down
+     */
+    onKeyDown(e) {
+        if (this._bDragging === true) {
+            if (e.keyCode === 27) {
+                this._eBody.removeClass("lm_dragging");
+                this._eElement.removeClass("lm_dragging");
+                this._oDocument.find("iframe").css("pointer-events", "");
+                this._oDocument.unbind("mousemove touchmove", this._fMove);
+                this._oDocument.unbind("mouseup touchend", this._fUp);
+                this._oDocument.unbind("keydown", this._fKeyDown);
+                $(".lm_dropTargetIndicator").hide();
+                $(".lm_dragProxy").remove();
             }
         }
     }
 
     _startDrag() {
         this._bDragging = true;
-        this._eBody.addClass('lm_dragging');
-        this._eElement.addClass('lm_dragging');
-        this._oDocument.find('iframe').css('pointer-events', 'none');
-        this.emit('dragStart', this._nOriginalX, this._nOriginalY);
+        this._eBody.addClass("lm_dragging");
+        this._eElement.addClass("lm_dragging");
+        this._oDocument.find("iframe").css("pointer-events", "none");
+        this.emit("dragStart", this._nOriginalX, this._nOriginalY);
     }
 
     _getCoordinates(event) {
-        event = getTouchEvent(event)
+        event = getTouchEvent(event);
         return {
             x: event.pageX,
-            y: event.pageY
+            y: event.pageY,
         };
     }
 }

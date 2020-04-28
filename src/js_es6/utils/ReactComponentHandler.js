@@ -1,14 +1,15 @@
-import $ from 'jquery'
+import $ from "jquery";
 /**
  * A specialised GoldenLayout component that binds GoldenLayout container
  * lifecycle events to react components
+ *
+ * VEGA: This file has been modified to support windows as react portals
  *
  * @constructor
  *
  * @param {ItemContainer} container
  * @param {Object} state state is not required for react components
  */
-
 
 export default class ReactComponentHandler {
     constructor(container, state) {
@@ -17,11 +18,9 @@ export default class ReactComponentHandler {
         this._container = container;
         this._initialState = state;
         this._reactClass = this._getReactClass();
-        this._container.on('open', this._render, this);
-        this._container.on('destroy', this._destroy, this);
+        this._container.on("open", this._render, this);
+        this._container.on("destroy", this._destroy, this);
     }
-
-
 
     /**
      * Creates the react class and component and hydrates it with
@@ -33,7 +32,10 @@ export default class ReactComponentHandler {
      * @returns {void}
      */
     _render() {
-        ReactDOM.render(this._getReactComponent(), this._container.getElement()[0]);
+        var reactContainer = this._container.layoutManager.reactContainer; // Instance of GL Class
+        if (reactContainer && reactContainer.componentRender) {
+            reactContainer.componentRender(this);
+        }
     }
 
     /**
@@ -47,17 +49,20 @@ export default class ReactComponentHandler {
      * @arg {React.Ref} component The component instance created by the `ReactDOM.render` call in the `_render` method.
      * @returns {void}
      */
-    _gotReactComponent(component) {
-        if (component !== null) {
-            this._reactComponent = component;
-            this._originalComponentWillUpdate = this._reactComponent.componentWillUpdate || function() {};
-            this._reactComponent.componentWillUpdate = this._onUpdate.bind( this );
-            if( this._container.getState() ) {
-                this._reactComponent.setState( this._container.getState() );
-            }
-        }
-    }
-    
+    // _gotReactComponent(component) {
+    //     if (component !== null) {
+    //         this._reactComponent = component;
+    //         this._originalComponentWillUpdate =
+    //             this._reactComponent.componentWillUpdate || function () {};
+    //         this._reactComponent.componentWillUpdate = this._onUpdate.bind(
+    //             this
+    //         );
+    //         if (this._container.getState()) {
+    //             this._reactComponent.setState(this._container.getState());
+    //         }
+    //     }
+    // }
+
     /**
      * Removes the component from the DOM and thus invokes React's unmount lifecycle
      *
@@ -65,9 +70,12 @@ export default class ReactComponentHandler {
      * @returns {void}
      */
     _destroy() {
-        ReactDOM.unmountComponentAtNode(this._container.getElement()[0]);
-        this._container.off('open', this._render, this);
-        this._container.off('destroy', this._destroy, this);
+        var reactContainer = this._container.layoutManager.reactContainer;
+        this._container.off("open", this._render, this);
+        this._container.off("destroy", this._destroy, this);
+        if (reactContainer && reactContainer.componentDestroy) {
+            reactContainer.componentDestroy(this);
+        }
     }
 
     /**
@@ -79,7 +87,11 @@ export default class ReactComponentHandler {
      */
     _onUpdate(nextProps, nextState) {
         this._container.setState(nextState);
-        this._originalComponentWillUpdate.call(this._reactComponent, nextProps, nextState);
+        this._originalComponentWillUpdate.call(
+            this._reactComponent,
+            nextProps,
+            nextState
+        );
     }
 
     /**
@@ -93,14 +105,22 @@ export default class ReactComponentHandler {
         var reactClass;
 
         if (!componentName) {
-            throw new Error('No react component name. type: react-component needs a field `component`');
+            throw new Error(
+                "No react component name. type: react-component needs a field `component`"
+            );
         }
 
-        reactClass = this._container.layoutManager.getComponent(this._container._config);
+        reactClass = this._container.layoutManager.getComponent(
+            this._container._config
+        );
 
         if (!reactClass) {
-            throw new Error('React component "' + componentName + '" not found. ' +
-                'Please register all components with GoldenLayout using `registerComponent(name, component)`');
+            throw new Error(
+                'React component "' +
+                    componentName +
+                    '" not found. ' +
+                    "Please register all components with GoldenLayout using `registerComponent(name, component)`"
+            );
         }
 
         return reactClass;
@@ -116,7 +136,7 @@ export default class ReactComponentHandler {
         var defaultProps = {
             glEventHub: this._container.layoutManager.eventHub,
             glContainer: this._container,
-            ref: this._gotReactComponent.bind(this),
+            // ref: this._gotReactComponent.bind(this),
         };
         var props = $.extend(defaultProps, this._container._config.props);
         return React.createElement(this._reactClass, props);

@@ -1,7 +1,7 @@
 // Type definitions for GoldenLayout v1.5.x
 // Project: https://golden-layout.com/
 
-declare module 'golden-layout' {
+declare module "@vegaprotocol/golden-layout" {
     class GoldenLayout implements GoldenLayout.EventEmitter {
         /**
          * The topmost item in the layout item tree. In browser terms: Think of the GoldenLayout instance as window
@@ -61,7 +61,10 @@ declare module 'golden-layout' {
          * @param config A GoldenLayout configuration object
          * @param container The DOM element the layout will be initialised in. Default: document.body
          */
-        constructor(configuration: GoldenLayout.Config, container?: Element | HTMLElement | JQuery);
+        constructor(
+            configuration: GoldenLayout.Config,
+            container?: Element | HTMLElement | JQuery
+        );
 
         /*
          * @param name 	The name of the component, as referred to by componentName in the component configuration.
@@ -107,7 +110,10 @@ declare module 'golden-layout' {
          * @param itemConfiguration An item configuration (can be an entire tree of items)
          * @param parent A parent item
          */
-        createContentItem(itemConfiguration?: GoldenLayout.ItemConfigType, parent?: GoldenLayout.ContentItem): GoldenLayout.ContentItem;
+        createContentItem(
+            itemConfiguration?: GoldenLayout.ItemConfigType,
+            parent?: GoldenLayout.ContentItem
+        ): GoldenLayout.ContentItem;
 
         /**
          * Creates a new popout window with configOrContentItem as contents at the position specified in dimensions
@@ -120,14 +126,19 @@ declare module 'golden-layout' {
          *                  when popIn is clicked
          * @param indexInParent The index at which the child window's contents will be appended to. Default: null
          */
-        createPopout(configOrContentItem: GoldenLayout.ItemConfigType | GoldenLayout.ContentItem,
-                     dimensions: {
-                         width: number,
-                         height: number,
-                         left: number,
-                         top: number
-                     }, parentId?: string,
-                     indexInParent?: number): void;
+        createPopout(
+            configOrContentItem:
+                | GoldenLayout.ItemConfigType
+                | GoldenLayout.ContentItem,
+            dimensions: {
+                width: number;
+                height: number;
+                left: number;
+                top: number;
+            },
+            parentId?: string,
+            indexInParent?: number
+        ): void;
 
         /**
          * Turns a DOM element into a dragSource, meaning that the user can drag the element directly onto the layout
@@ -137,7 +148,10 @@ declare module 'golden-layout' {
          * @return the dragSource that was created. This can be used to remove the
          *         dragSource from the layout later.
          */
-        createDragSource(element: HTMLElement | JQuery, itemConfiguration: GoldenLayout.ItemConfigType): GoldenLayout.DragSource;
+        createDragSource(
+            element: HTMLElement | JQuery,
+            itemConfiguration: GoldenLayout.ItemConfigType
+        ): GoldenLayout.DragSource;
 
         /**
          * Removes a dragSource from the layout.
@@ -182,7 +196,12 @@ declare module 'golden-layout' {
         /**
          * Alias for emit
          */
-        trigger(eventName: string, arg1?: any, arg2?: any, ...argN: any[]): void;
+        trigger(
+            eventName: string,
+            arg1?: any,
+            arg2?: any,
+            ...argN: any[]
+        ): void;
 
         /**
          * Unsubscribes either all listeners if just an eventName is provided, just a specific callback if invoked with
@@ -201,8 +220,10 @@ declare module 'golden-layout' {
     }
 
     namespace GoldenLayout {
-
-        export type ItemConfigType = ItemConfig | ComponentConfig | ReactComponentConfig;
+        export type ItemConfigType =
+            | ItemConfig
+            | ComponentConfig
+            | ReactComponentConfig;
 
         export interface Settings {
             /**
@@ -493,7 +514,10 @@ declare module 'golden-layout' {
              * @param itemOrItemConfig A content item (or tree of content items) or an ItemConfiguration to create the item from
              * @param index last index  An optional index that determines at which position the new item should be added. Default: last index.
              */
-            addChild(itemOrItemConfig: ContentItem | ItemConfigType, index?: number): void;
+            addChild(
+                itemOrItemConfig: ContentItem | ItemConfigType,
+                index?: number
+            ): void;
 
             /**
              * Destroys the item and all it's children
@@ -507,7 +531,10 @@ declare module 'golden-layout' {
              * @param oldChild    ContentItem The contentItem that should be removed
              * @param newChild A content item (or tree of content items) or an ItemConfiguration to create the item from
              */
-            replaceChild(oldChild: ContentItem, newChild: ContentItem | ItemConfigType): void;
+            replaceChild(
+                oldChild: ContentItem,
+                newChild: ContentItem | ItemConfigType
+            ): void;
 
             /**
              * Updates the items size. To actually assign a new size from within a component, use container.setSize( width, height )
@@ -528,7 +555,12 @@ declare module 'golden-layout' {
              * @param bottomUp If true, the method is invoked on the lowest parts of the tree first and then bubbles upwards. Default: false
              * @param skipSelf If true, the method will only be invoked on the item's children, but not on the item itself. Default: false
              */
-            callDownwards(functionName: string, functionArguments?: any[], bottomUp?: boolean, skipSelf?: boolean): void;
+            callDownwards(
+                functionName: string,
+                functionArguments?: any[],
+                bottomUp?: boolean,
+                skipSelf?: boolean
+            ): void;
 
             /**
              * Emits an event that bubbles up the item tree until it reaches the root element (and after a delay the layout manager). Useful e.g. for indicating state changes.
@@ -593,7 +625,9 @@ declare module 'golden-layout' {
              * Calls filterFunction recursively for every item in the tree. If the function returns true the item is added to the resulting array
              * @param filterFunction A function that determines whether an item matches certain criteria
              */
-            getItemsByFilter(filterFunction: (contentItem: ContentItem) => boolean): ContentItem[];
+            getItemsByFilter(
+                filterFunction: (contentItem: ContentItem) => boolean
+            ): ContentItem[];
 
             /**
              * Returns all items with the specified id.
@@ -612,7 +646,6 @@ declare module 'golden-layout' {
              * @param componentName a componentName as specified in the itemConfig
              */
             getComponentsByName(componentName: string): any;
-
         }
 
         export interface Container extends EventEmitter {
@@ -706,11 +739,9 @@ declare module 'golden-layout' {
             close(): boolean;
         }
 
-        export interface DragSource {
-        }
+        export interface DragSource {}
 
         export interface BrowserWindow {
-
             /**
              * True if the window has been opened and its GoldenLayout instance initialised.
              */
@@ -721,14 +752,14 @@ declare module 'golden-layout' {
              */
             toConfig(): {
                 dimensions: {
-                    width: number,
-                    height: number,
-                    left: number,
-                    top: number
-                },
-                content: Config,
-                parentId: string,
-                indexInParent: number
+                    width: number;
+                    height: number;
+                    left: number;
+                    top: number;
+                };
+                content: Config;
+                parentId: string;
+                indexInParent: number;
             };
 
             /**
@@ -809,7 +840,6 @@ declare module 'golden-layout' {
         }
 
         export interface Tab {
-
             /**
              * True if this tab is the selected tab
              */
@@ -866,12 +896,22 @@ declare module 'golden-layout' {
              * Notify listeners of an event and pass arguments along
              * @param eventName The name of the event to emit
              */
-            emit(eventName: string, arg1?: any, arg2?: any, ...argN: any[]): void;
+            emit(
+                eventName: string,
+                arg1?: any,
+                arg2?: any,
+                ...argN: any[]
+            ): void;
 
             /**
              * Alias for emit
              */
-            trigger(eventName: string, arg1?: any, arg2?: any, ...argN: any[]): void;
+            trigger(
+                eventName: string,
+                arg1?: any,
+                arg2?: any,
+                ...argN: any[]
+            ): void;
 
             /**
              * Unsubscribes either all listeners if just an eventName is provided, just a specific callback if invoked with
