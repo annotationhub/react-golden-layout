@@ -39,6 +39,7 @@
         "coverage": "JQUERY=true karma start --single-run --no-auto-watch --coverage=true || echo done"
     },
     "dependencies": {
+        "istanbul-instrumenter-loader": "^3.0.1",
         "jquery": "^3.5.0",
         "zepto": "^1.2.0"
     },

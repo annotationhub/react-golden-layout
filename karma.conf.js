@@ -38,7 +38,7 @@ module.exports = function (config) {
         }
     },          
     module: {
-        loaders: [
+        rules: [
         {
           test: /\.less$/,
           use: [ 'ignore-loader' ]
