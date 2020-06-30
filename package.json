@@ -30,6 +30,7 @@
         "build:module": "babel --config-file ./webpack/esm.babel.config.json src --out-dir dist/esm",
         "build:es2015": "babel --config-file ./webpack/es2015.babel.config.json src --out-dir dist/es2015",
         "build": "npm run clean && npm-run-all --parallel build:* && cp -r ./src/img ./dist/",
+        "develop": "npm run build && webpack --mode development --config ./webpack/umd.webpack.config.js --watch",
         "clean": "npm-run-all clean:*",
         "clean:dist": "del-cli dist",
         "lint:autofix": "eslint src/js_es6 --fix",

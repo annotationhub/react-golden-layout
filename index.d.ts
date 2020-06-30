@@ -365,7 +365,7 @@ declare module "@annotationhub/react-golden-layout" {
             /**
              * The type of the item. Possible values are 'row', 'column', 'stack', 'component' and 'react-component'.
              */
-            type: string;
+            type?: string;
 
             /**
              * An array of configurations for items that will be created as children of this item.
@@ -418,12 +418,8 @@ declare module "@annotationhub/react-golden-layout" {
             /**
              * The name of the component as specified in layout.registerComponent. Mandatory if type is 'react-component'
              */
-            component: string;
-
-            /**
-             * Properties that will be passed to the component and accessible using this.props.
-             */
-            props?: any;
+            // component: React.ComponentType<any>;
+            component: string | React.ComponentType<any>;
         }
 
         export interface Config {
@@ -940,8 +936,7 @@ declare module "@annotationhub/react-golden-layout" {
 
     interface GoldenLayoutComponentProps {
         config: GoldenLayout.Config;
-        registerComponents: (layout: GoldenLayout) => any;
-        htmlAttrs: { [prop: string]: any };
+        htmlAttrs?: { [prop: string]: any };
     }
     class GoldenLayoutComponent extends React.Component<GoldenLayoutComponentProps> {}
 
