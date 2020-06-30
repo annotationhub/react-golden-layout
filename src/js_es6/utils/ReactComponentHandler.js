@@ -1,4 +1,6 @@
 import $ from "jquery";
+import React from 'react';
+
 /**
  * A specialised GoldenLayout component that binds GoldenLayout container
  * lifecycle events to react components

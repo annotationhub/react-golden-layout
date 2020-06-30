@@ -1,4 +1,4 @@
-# Golden Layout
+# Golden Layout React (Forked by Annotation Hub)
 
 [![NPM version](https://img.shields.io/npm/v/golden-layout)](https://www.npmjs.com/package/golden-layout) [![License](https://img.shields.io/github/license/golden-layout/golden-layout)](https://img.shields.io/github/license/golden-layout/golden-layout)
 

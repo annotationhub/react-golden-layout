@@ -29,7 +29,7 @@
         "build:umd": "webpack --mode production --config ./webpack/umd.webpack.config.js",
         "build:module": "babel --config-file ./webpack/esm.babel.config.json src --out-dir dist/esm",
         "build:es2015": "babel --config-file ./webpack/es2015.babel.config.json src --out-dir dist/es2015",
-        "build": "npm run clean && npm-run-all --parallel build:*",
+        "build": "npm run clean && npm-run-all --parallel build:* && cp -r ./src/img ./dist/",
         "clean": "npm-run-all clean:*",
         "clean:dist": "del-cli dist",
         "lint:autofix": "eslint src/js_es6 --fix",
@@ -39,16 +39,20 @@
         "coverage": "JQUERY=true karma start --single-run --no-auto-watch --coverage=true || echo done"
     },
     "dependencies": {
-        "istanbul-instrumenter-loader": "^3.0.1",
         "jquery": "^3.5.0",
         "zepto": "^1.2.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.8.4",
         "@babel/core": "^7.9.0",
+        "@babel/plugin-proposal-class-properties": "^7.10.4",
+        "@babel/plugin-transform-react-jsx": "^7.10.4",
         "@babel/preset-env": "^7.9.5",
+        "@babel/preset-react": "^7.10.4",
+        "@types/react": "^16.9.41",
         "autoprefixer": "^9.7.6",
         "babel-loader": "^8.1.0",
+        "babel-plugin-transform-react-jsx": "^6.24.1",
         "cross-env": "^7.0.2",
         "css-loader": "^3.5.2",
         "del-cli": "^3.0.0",
@@ -58,6 +62,7 @@
         "eslint-plugin-react": "^7.19.0",
         "file-loader": "^6.0.0",
         "html-webpack-plugin": "^4.2.0",
+        "istanbul-instrumenter-loader": "^3.0.1",
         "jasmine": "^3.5.0",
         "jasmine-core": "^3.5.0",
         "karma": "^5.0.1",
