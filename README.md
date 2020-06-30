@@ -1,4 +1,4 @@
-# Golden Layout React (Forked by Annotation Hub)
+# React Golden Layout
 
 [![NPM version](https://img.shields.io/npm/v/golden-layout)](https://www.npmjs.com/package/golden-layout) [![License](https://img.shields.io/github/license/golden-layout/golden-layout)](https://img.shields.io/github/license/golden-layout/golden-layout)
 
@@ -6,7 +6,69 @@
 
 <!-- ![Screenshot](https://cloud.githubusercontent.com/assets/512416/4584449/e6c154a0-4ffa-11e4-81a8-a7e5f8689dc5.PNG) -->
 
-Please note that this project is currently undergoing a larger maintenance and refactoring, we're targeting a 2.0 release somewhere in H1 2020.
+Original project credit goes to: https://github.com/golden-layout/golden-layout.
+
+## Overview
+This project was forked from the original golden layout project, which unfortunately appears to have been abandoned. This is a forked & updated version of that original project to add compatability with React. This updated version now exports a `GoldenLayoutComponent` for easy integration into a React project.
+
+Example usage:
+```typescript
+import React from 'react';
+import '@annotationhub/golden-layout/dist/css/goldenlayout-base.css';
+import '@annotationhub/golden-layout/dist/css/themes/goldenlayout-dark-theme.css';
+import { GoldenLayoutComponent } from '@annotationhub/react-golden-layout';
+
+function ComponentA() {
+  return <h2>A</h2>;
+}
+
+function ComponentB() {
+  return <h2>B</h2>;
+}
+
+function ComponentC() {
+  return <h2>C</h2>;
+}
+
+export default function GoldenTest() {
+  return (
+    <div>
+      <GoldenLayoutComponent
+        htmlAttrs={{ style: { height: "100vh", width: "100vw" } }}
+        config={{
+          content: [{
+            type: 'row',
+            content:[{
+              type:'react-component',
+              component: 'ComponentA',
+              title: 'A Component',
+              props: { label: 'A' }
+            }, {
+              type: 'column',
+              content:[{
+                  type:'react-component',
+                  component: 'ComponentB',
+                  title: 'B Component',
+                  props: { label: 'B' }
+              },{
+                  type:'react-component',
+                  component: 'ComponentC',
+                  title: 'C Component',
+                  props: { label: 'C' }
+              }]
+            }]
+          }]
+        }}
+        registerComponents={glLayout => {
+          glLayout.registerComponent('ComponentA', ComponentA);
+          glLayout.registerComponent('ComponentB', ComponentB)
+          glLayout.registerComponent('ComponentC', ComponentC)
+        }}
+      />
+    </div>
+  );
+}
+```
 
 ## Features
 
@@ -21,9 +83,8 @@ Please note that this project is currently undergoing a larger maintenance and r
 
 ## Installation / Usage
 
-**IMPORTANT: This section refers to the unreleased 2.0 version of golden-layout, so keep this in mind and use the v1.5.9 tag for current works.**
+To install, run: `npm i -S @annotationhub/react-golden-layout`.
 
-golden-layout is shipped via npm, so to use it, run `npm i -S golden-layout`. 
 If you are using webpack or another module bundler, you may wish to install it as dev-dep instead. 
 We are shipping an UMD version, an ES5 + ES-Module version and an ES2015+ES-Module version of the library within the package.
 Modern bundlers such as webpack should pick up the ES2015 version and transpile the code according to your applications configuration.

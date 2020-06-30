@@ -2,7 +2,7 @@
 // Project: https://golden-layout.com/
 
 
-declare module "@annotationhub/golden-layout" {
+declare module "@annotationhub/react-golden-layout" {
     import React from 'react';
     class GoldenLayout implements GoldenLayout.EventEmitter {
         /**
@@ -941,7 +941,7 @@ declare module "@annotationhub/golden-layout" {
     interface GoldenLayoutComponentProps {
         config: GoldenLayout.Config;
         registerComponents: (layout: GoldenLayout) => any;
-        htmlAttrs: { [prop: string]: string | number };
+        htmlAttrs: { [prop: string]: any };
     }
     class GoldenLayoutComponent extends React.Component<GoldenLayoutComponentProps> {}
 

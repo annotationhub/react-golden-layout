@@ -1,6 +1,6 @@
 {
-    "name": "@annotationhub/golden-layout",
-    "version": "2.0.0-alpha.9",
+    "name": "@annotationhub/react-golden-layout",
+    "version": "2.0.0",
     "description": "A multi-screen javascript Layout manager \r https://golden-layout.com",
     "keywords": [
         "docking",
@@ -13,12 +13,12 @@
         "dist",
         "index.d.ts"
     ],
-    "homepage": "https://github.com/golden-layout/golden-layout",
+    "homepage": "https://github.com/annotationhub/react-golden-layout/issues",
     "bugs": {
-        "url": "https://github.com/golden-layout/golden-layout/issues"
+        "url": "https://github.com/annotationhub/react-golden-layout/issues"
     },
     "license": "MIT",
-    "author": "deepstreamHub GmbH",
+    "author": "deepstreamHub GmbH (original), Annotation Hub (forked)",
     "main": "dist/umd/golden-layout.js",
     "module": "dist/esm/index.js",
     "es2015": "dist/es2015/index.js",
