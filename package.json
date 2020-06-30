@@ -1,5 +1,5 @@
 {
-    "name": "@vegaprotocol/golden-layout",
+    "name": "@annotationhub/golden-layout",
     "version": "2.0.0-alpha.9",
     "description": "A multi-screen javascript Layout manager \r https://golden-layout.com",
     "keywords": [
@@ -77,8 +77,8 @@
         "webpack-dev-server": "^3.10.3"
     },
     "optionalDependencies": {
-        "react": "14 || 15 || 16",
-        "react-dom": "14 || 15 || 16"
+        "react": "^16.13.1",
+        "react-dom": "^16.13.1"
     },
     "browserslist": [
         "defaults",
