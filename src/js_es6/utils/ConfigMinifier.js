@@ -121,7 +121,7 @@ export default class ConfigMinifier {
             /**
              * In case something has extended Object prototypes
              */
-            if (!from.hasOwnProperty(key)) continue;
+            if (!Object.prototype.hasOwnProperty.call(from, key)) continue;
 
             /**
              * Translate the key to a one letter substitute
