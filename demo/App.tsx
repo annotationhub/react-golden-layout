@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
-import { GoldenLayoutComponent } from "../src/index";
-import "../src/less/goldenlayout-base.less";
-import "../src/less/themes/goldenlayout-dark-theme.less";
+import { GoldenLayoutComponent } from '../src/index';
+import '../src/less/goldenlayout-base.less';
+import '../src/less/themes/goldenlayout-dark-theme.less';
 
 function ComponentA() {
     return <h2>A</h2>;
@@ -21,27 +21,29 @@ export default function GoldenTest() {
     const [content, setContent] = useState<any[]>([
         {
             component: ComponentA,
-            title: "A Component",
+
+            title: 'A Component',
         },
     ]);
 
     useEffect(() => {
         const id = setTimeout(() => {
+
             setContent((content) => [
                 ...content,
 
                 {
-                    type: "column",
+                    type: 'column',
                     content: [
                         {
                             component: ComponentB,
-                            title: "B Component",
+                            title: 'B Component',
                         },
                         {
                             component: () => (
-                                <ComponentC myText="Component with Props" />
+                                <ComponentC myText='Component with Props' />
                             ),
-                            title: "C Component",
+                            title: 'C Component',
                         },
                     ],
                 },
@@ -53,14 +55,14 @@ export default function GoldenTest() {
 
     return (
         <GoldenLayoutComponent
-            htmlAttrs={{ style: { width: "100vw", height: "100vh" } }}
+            htmlAttrs={{ style: { width: '100vw', height: '100vh' } }}
             onLayoutChange={(...args) => {
-                console.log("layoutchange", args);
+                console.log('layoutchange', args);
             }}
             config={{
                 content: [
                     {
-                        type: "row",
+                        type: 'row',
                         content: content,
                     },
                 ],

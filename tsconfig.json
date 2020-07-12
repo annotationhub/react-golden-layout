@@ -5,6 +5,5 @@
         "esModuleInterop": true,
         "jsx": "react"
     },
-    "exclude": ["node_modules", "typings/browser", "typings/browser.d.ts"],
-    "include": ["index.d.ts"]
+    "exclude": ["node_modules", "typings/browser", "typings/browser.d.ts"]
 }
