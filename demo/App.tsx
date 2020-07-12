@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 import { GoldenLayoutComponent } from "../src/index";
 import "../src/less/goldenlayout-base.less";
@@ -17,34 +17,51 @@ function ComponentC(props: any) {
 }
 
 export default function GoldenTest() {
+    // TODO: import the GoldenLayout.ItemConfigType typings here, not sure how with local demo
+    const [content, setContent] = useState<any[]>([
+        {
+            component: ComponentA,
+            title: "A Component",
+        },
+    ]);
+
+    useEffect(() => {
+        const id = setTimeout(() => {
+            setContent((content) => [
+                ...content,
+
+                {
+                    type: "column",
+                    content: [
+                        {
+                            component: ComponentB,
+                            title: "B Component",
+                        },
+                        {
+                            component: () => (
+                                <ComponentC myText="Component with Props" />
+                            ),
+                            title: "C Component",
+                        },
+                    ],
+                },
+            ]);
+        }, 2000);
+
+        return () => clearTimeout(id);
+    }, [setContent]);
+
     return (
         <GoldenLayoutComponent
             htmlAttrs={{ style: { width: "100vw", height: "100vh" } }}
+            onLayoutChange={(...args) => {
+                console.log("layoutchange", args);
+            }}
             config={{
                 content: [
                     {
                         type: "row",
-                        content: [
-                            {
-                                component: ComponentA,
-                                title: "A Component",
-                            },
-                            {
-                                type: "column",
-                                content: [
-                                    {
-                                        component: ComponentB,
-                                        title: "B Component",
-                                    },
-                                    {
-                                        component: () => (
-                                            <ComponentC myText="Component with Props" />
-                                        ),
-                                        title: "C Component",
-                                    },
-                                ],
-                            },
-                        ],
+                        content: content,
                     },
                 ],
             }}
