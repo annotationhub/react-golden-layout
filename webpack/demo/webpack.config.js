@@ -1,21 +1,19 @@
 const webpack = require("webpack");
 const path = require("path");
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-    entry: [
-        "./demo/app.js"
-    ],
+    entry: ["./demo/index.tsx"],
 
     output: {
-        filename: '[name].js',
-        path: path.resolve(__dirname, 'dist/demo'),
+        filename: "[name].js",
+        path: path.resolve(__dirname, "dist/demo"),
     },
 
     resolve: {
+        extensions: [".tsx", ".ts", ".js"],
         alias: {
-            "jquery": process.env.ZEPTO ? "zepto" : "jquery",
-
+            jquery: process.env.ZEPTO ? "zepto" : "jquery",
         },
     },
 
@@ -23,25 +21,27 @@ module.exports = {
     devtool: "cheap-module-source-map",
     devServer: {
         port: 3000,
-        index: "./demo/index.html"
+        index: "./demo/index.html",
     },
 
     module: {
         rules: [
+            {
+                test: /\.tsx?$/,
+                use: "ts-loader",
+                exclude: /node_modules/,
+            },
             {
                 test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
                 use: {
                     loader: "babel-loader",
                     options: {
-                        presets: [
-                            "@babel/preset-env",
-                            "@babel/preset-react",
-                        ],
+                        presets: ["@babel/preset-env", "@babel/preset-react"],
                         plugins: [
                             "@babel/plugin-proposal-class-properties",
-                            "transform-react-jsx"
-                        ]
+                            "transform-react-jsx",
+                        ],
                     },
                 },
             },
@@ -49,14 +49,14 @@ module.exports = {
                 test: /\.less$/,
                 use: [
                     {
-                        loader: "style-loader"
+                        loader: "style-loader",
                     },
                     {
                         loader: "css-loader",
                     },
                     {
                         loader: "less-loader",
-                    }
+                    },
                 ],
             },
             {
@@ -65,10 +65,10 @@ module.exports = {
                     {
                         loader: "file-loader",
                         options: {
-                            name: "assets/[name].[ext]"
-                        }
-                    }
-                ]
+                            name: "assets/[name].[ext]",
+                        },
+                    },
+                ],
             },
             {
                 test: /\.(woff2?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
@@ -76,20 +76,21 @@ module.exports = {
                     {
                         loader: "file-loader",
                         options: {
-                            name: path.join("assets", "[name].[ext]")
-                        }
-                    }
-                ]
-            }
-        ]
+                            name: path.join("assets", "[name].[ext]"),
+                        },
+                    },
+                ],
+            },
+        ],
     },
 
     plugins: [
         new webpack.DefinePlugin({
-            env: JSON.stringify(process.env)
+            env: JSON.stringify(process.env),
         }),
         new HtmlWebpackPlugin({
-            filename: "./demo/index.html"
-        })
-    ]
+            template: "./demo/index.html",
+            filename: "./demo/index.html",
+        }),
+    ],
 };
