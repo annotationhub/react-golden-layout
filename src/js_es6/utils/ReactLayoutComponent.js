@@ -34,15 +34,35 @@ function translateConfig(config, componentMap) {
     };
 }
 
+/**
+ * Quick and dirty hash function for determining quickly determining config file changes.
+ * https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
+ */
+function hash(s) {
+    return s.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+}
+
 export default function ReactLayoutComponent({
-    // TODO: discuss inbuilt layout change debouncing with @annotationhub
-    // to hide underlying goldenlayout object
     config,
-    onLayoutChange,
     htmlAttrs,
+    onLayoutReady,
+    autoresize = false,
+    debounceResize = 0,
 }) {
     const containerRef = useRef();
     const [panels, setPanels] = useState(new Set());
+    const [layoutManager, setLayoutManager] = useState(null);
+
+    // Equality almost never pass when passing in config object. Usually a new object is created.
+    // This hash is a quick method of detecting actual config changes before heavy recreation of the layout.
+    // TODO: This may not be optimal or most performant method to check for config changes.
+    const [configHash, setConfigHash] = useState(hash(JSON.stringify(config)));
+    useEffect(() => {
+        const newHash = hash(JSON.stringify(config));
+        if (newHash !== configHash) {
+            setConfigHash(newHash);
+        }
+    }, [config]);
 
     useEffect(() => {
         const componentMap = {};
@@ -52,6 +72,7 @@ export default function ReactLayoutComponent({
             containerRef.current
         );
 
+        setLayoutManager(layoutManager);
         setPanels(new Set());
 
         // these callbacks are used by ReactComponentHandler to bind
@@ -73,14 +94,35 @@ export default function ReactLayoutComponent({
             layoutManager.registerComponent(component, componentMap[component]);
         }
 
-        if (onLayoutChange) {
-            layoutManager.on("stateChanged", onLayoutChange);
-        }
-
         layoutManager.init();
 
+        if (onLayoutReady) {
+            onLayoutReady(layoutManager);
+        }
+
         return () => layoutManager.destroy();
-    }, [config]);
+    }, [configHash]);
+
+    // Autoresize
+    useEffect(() => {
+        if (!autoresize) {
+            return;
+        }
+
+        let resizeTimer;
+        const resize = () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (layoutManager) {
+                    layoutManager.updateSize();
+                }
+            }, debounceResize);
+        }
+
+        window.addEventListener('resize', resize);
+
+        return () => window.removeEventListener('resize', resize);
+    }, [autoresize, debounceResize, layoutManager]);
 
     return (
         <div ref={containerRef} {...htmlAttrs}>
