@@ -55,7 +55,7 @@ export default function GoldenTest() {
         // (Optional) (Milliseconds) Debounce resize to prevent excessive re-renders.
         debounceResize={100}
         // (Optional) Grab the instance of the GoldenLayout Manager. Gives you full access to GL API.
-        layoutManager={setLayoutManager}
+        onLayoutReady={setLayoutManager}
       />
     </div>
   );
