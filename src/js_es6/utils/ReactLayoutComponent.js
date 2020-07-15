@@ -124,8 +124,16 @@ export default function ReactLayoutComponent({
         return () => window.removeEventListener('resize', resize);
     }, [autoresize, debounceResize, layoutManager]);
 
+    // Default to filling parent container.
+    let { style, ...restHtmlAttrs } = htmlAttrs || {};
+    style = {
+        width: '100%',
+        height: '100%',
+        ...(style || {})
+    };
+
     return (
-        <div ref={containerRef} {...htmlAttrs}>
+        <div ref={containerRef} {...restHtmlAttrs} style={style}>
             {Array.from(panels).map((panel) =>
                 ReactDOM.createPortal(
                     panel._getReactComponent(),
