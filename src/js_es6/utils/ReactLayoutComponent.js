@@ -1,160 +1,137 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import LayoutManager from '../LayoutManager';
+import React, { useRef, useState, useEffect } from "react";
+import ReactDOM from "react-dom";
+import LayoutManager from "../LayoutManager";
 
 /**
  * Far from cryptographically secure, but good enough to avoid component naming collisions.
  */
 function randomString() {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    return (
+        Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15)
+    );
 }
 
-function translateConfig(config, configMap) {
-  if (config.component) {
-    const componentName = `${(config.component.key || config.component.name)}_${randomString()}`;
-    configMap[componentName] = config.component;
+function translateConfig(config, componentMap) {
+    if (config.component) {
+        const componentName = `${
+            config.component.key || config.component.name
+        }_${randomString()}`;
+        componentMap[componentName] = config.component;
+
+        return {
+            ...config,
+            type: "react-component",
+            component: componentName,
+        };
+    }
 
     return {
-      ...config,
-      type: 'react-component',
-      component: componentName,
+        ...config,
+        content: config.content.map((item) =>
+            translateConfig(item, componentMap)
+        ),
     };
-  }
-
-  return {
-    ...config,
-    content: config.content.map(item => translateConfig(item, configMap))
-  };
 }
 
-export default class ReactLayoutComponent extends React.Component {
-  containerRef = React.createRef();
-  defaultContainerStyle = {
-    width: '100%',
-    height: '100%'
-  };
+/**
+ * Quick and dirty hash function for determining quickly determining config file changes.
+ * https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
+ */
+function hash(s) {
+    return s.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+}
 
-  windowResizeListener = null;
-  containerResizer = this.resizeOnDelay.bind(this);
-  resizeTimer = null;
-  defaultDebounceResize = 0;
+export default function ReactLayoutComponent({
+    config,
+    htmlAttrs,
+    onLayoutReady,
+    autoresize = false,
+    debounceResize = 0,
+}) {
+    const containerRef = useRef();
+    const [panels, setPanels] = useState(new Set());
+    const [layoutManager, setLayoutManager] = useState(null);
 
-  constructor(props) {
-    super(props);
+    // Equality almost never pass when passing in config object. Usually a new object is created.
+    // This hash is a quick method of detecting actual config changes before heavy recreation of the layout.
+    // TODO: This may not be optimal or most performant method to check for config changes.
+    const [configHash, setConfigHash] = useState(hash(JSON.stringify(config)));
+    useEffect(() => {
+        const newHash = hash(JSON.stringify(config));
+        if (newHash !== configHash) {
+            setConfigHash(newHash);
+        }
+    }, [config]);
 
-    const componentMap = {};
-    const glConfig = translateConfig(this.props.config || {}, componentMap);
+    useEffect(() => {
+        const componentMap = {};
 
-    this.state = {
-      renderPanels: new Set(),
-      config: this.props.config,
-      glConfig,
-      componentMap
-    };
-  }
+        const layoutManager = new LayoutManager(
+            translateConfig(config, componentMap),
+            containerRef.current
+        );
 
-  /**
-   * Called by ReactComponentHandler on GoldenLayout's render component call.
-   * @param {ReactComponentHandler} reactComponentHandler 
-   */
-  componentRender(reactComponentHandler) {
-    this.setState(state => {
-      let newRenderPanels = new Set(state.renderPanels);
-      newRenderPanels.add(reactComponentHandler);
-      return { renderPanels: newRenderPanels };
-    });
-  }
+        setLayoutManager(layoutManager);
+        setPanels(new Set());
 
-  /**
-   * Called by ReactComponentHandler on GoldenLayout's destroy component call.
-   * @param {ReactComponentHandler} reactComponentHandler 
-   */
-  componentDestroy(reactComponentHandler) {
-    this.setState(state => {
-      let newRenderPanels = new Set(state.renderPanels);
-      newRenderPanels.delete(reactComponentHandler);
-      return { renderPanels: newRenderPanels };
-    });
-  }
+        // these callbacks are used by ReactComponentHandler to bind
+        // the goldenlayout component lifecycle to react
+        layoutManager.reactContainer = {
+            componentRender: (panel) => {
+                setPanels((panels) => panels.add(panel));
+            },
+            componentDestroy: (panel) => {
+                setPanels((panels) => {
+                    const newPanels = new Set(panels);
+                    newPanels.delete(panel);
+                    return newPanels;
+                });
+            },
+        };
 
-  goldenLayoutInstance = undefined;
+        for (const component in componentMap) {
+            layoutManager.registerComponent(component, componentMap[component]);
+        }
 
-  componentDidMount() {
-    this.goldenLayoutInstance = new LayoutManager(
-      this.state.glConfig || {},
-      this.containerRef.current
-    );
+        layoutManager.init();
 
-    for (let component in this.state.componentMap) {
-      this.goldenLayoutInstance.registerComponent(component, this.state.componentMap[component]);
-    }
+        if (onLayoutReady) {
+            onLayoutReady(layoutManager);
+        }
 
-    this.goldenLayoutInstance.reactContainer = this;
-    this.goldenLayoutInstance.init();
+        return () => layoutManager.destroy();
+    }, [configHash]);
 
-    if (this.props.layoutManager) {
-      this.props.layoutManager(this.goldenLayoutInstance);
-    }
+    // Autoresize
+    useEffect(() => {
+        if (!autoresize) {
+            return;
+        }
 
-    if (this.props.autoresize) {
-      this.enableAutoResize();
-    }
-  }
+        let resizeTimer;
+        const resize = () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (layoutManager) {
+                    layoutManager.updateSize();
+                }
+            }, debounceResize);
+        }
 
-  enableAutoResize() {
-    const div = this.containerRef.current;
-    if (div) {
-      div.addEventListener('resize', this.containerResizer);
-    }
+        window.addEventListener('resize', resize);
 
-    window.addEventListener('resize', this.containerResizer);
-  }
-
-  disableAutoResize() {
-    const div = this.containerRef.current;
-    window.removeEventListener('resize', this.containerResizer);
-    if (div) {
-    div.removeEventListener('resize', this.containerResizer);
-    }
-
-    this.containerResizer = null;
-  }
-
-  resizeOnDelay() {
-    if (this.resizeTimer) {
-      clearTimeout(this.resizeTimer);
-    }
-
-    const debounceTime = (typeof this.props.debounceResize === 'number') ?
-      this.props.debounceResize :
-      this.defaultDebounceResize;
-
-    this.resizeTimer = setTimeout(() => {
-      this.goldenLayoutInstance && this.goldenLayoutInstance.updateSize();
-    }, debounceTime);
-  }
-
-  render() {
-    let panels = Array.from(this.state.renderPanels || []);
-    let { style, ...htmlAttrs } = this.props.htmlAttrs || {};
-    style = {
-      ...this.defaultContainerStyle,
-      ...(style || {})
-    };
+        return () => window.removeEventListener('resize', resize);
+    }, [autoresize, debounceResize, layoutManager]);
 
     return (
-      <div
-        ref={this.containerRef}
-        {...htmlAttrs}
-        style={style}
-      >
-        {panels.map((panel, index) => {
-          return ReactDOM.createPortal(
-            panel._getReactComponent(),
-            panel._container.getElement()[0]
-          );
-        })}
-      </div>
+        <div ref={containerRef} {...htmlAttrs}>
+            {Array.from(panels).map((panel) =>
+                ReactDOM.createPortal(
+                    panel._getReactComponent(),
+                    panel._container.getElement()[0]
+                )
+            )}
+        </div>
     );
-  }
 }

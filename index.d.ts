@@ -1,9 +1,8 @@
 // Type definitions for GoldenLayout v1.5.x
 // Project: https://golden-layout.com/
 
-
 declare module "@annotationhub/react-golden-layout" {
-    import React from 'react';
+    import React from "react";
     class GoldenLayout implements GoldenLayout.EventEmitter {
         /**
          * The topmost item in the layout item tree. In browser terms: Think of the GoldenLayout instance as window
@@ -365,7 +364,7 @@ declare module "@annotationhub/react-golden-layout" {
             /**
              * The type of the item. Possible values are 'row', 'column', 'stack', 'component' and 'react-component'.
              */
-            type?: string;
+            type?: "row" | "column" | "stack" | "component" | "react-component";
 
             /**
              * An array of configurations for items that will be created as children of this item.
@@ -937,15 +936,14 @@ declare module "@annotationhub/react-golden-layout" {
     interface GoldenLayoutComponentProps {
         config: GoldenLayout.Config;
         htmlAttrs?: { [prop: string]: any };
-        layoutManager?: (layout: GoldenLayout) => unknown;
         autoresize?: boolean;
         debounceResize?: number;
+        onLayoutReady?: (layout: GoldenLayout) => unknown;
     }
-    class GoldenLayoutComponent extends React.Component<GoldenLayoutComponentProps> {}
+    class GoldenLayoutComponent extends React.Component<
+        GoldenLayoutComponentProps
+    > {}
 
     export default GoldenLayout;
-    export {
-        GoldenLayoutComponentProps,
-        GoldenLayoutComponent
-    };
+    export { GoldenLayoutComponentProps, GoldenLayoutComponent };
 }
