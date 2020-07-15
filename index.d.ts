@@ -937,6 +937,9 @@ declare module "@annotationhub/react-golden-layout" {
     interface GoldenLayoutComponentProps {
         config: GoldenLayout.Config;
         htmlAttrs?: { [prop: string]: any };
+        layoutManager?: (layout: GoldenLayout) => unknown;
+        autoresize?: boolean;
+        debounceResize?: number;
     }
     class GoldenLayoutComponent extends React.Component<GoldenLayoutComponentProps> {}
 

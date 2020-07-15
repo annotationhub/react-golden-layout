@@ -29,6 +29,15 @@ function translateConfig(config, configMap) {
 
 export default class ReactLayoutComponent extends React.Component {
   containerRef = React.createRef();
+  defaultContainerStyle = {
+    width: '100%',
+    height: '100%'
+  };
+
+  windowResizeListener = null;
+  containerResizer = this.resizeOnDelay.bind(this);
+  resizeTimer = null;
+  defaultDebounceResize = 0;
 
   constructor(props) {
     super(props);
@@ -82,13 +91,63 @@ export default class ReactLayoutComponent extends React.Component {
 
     this.goldenLayoutInstance.reactContainer = this;
     this.goldenLayoutInstance.init();
+
+    if (this.props.layoutManager) {
+      this.props.layoutManager(this.goldenLayoutInstance);
+    }
+
+    if (this.props.autoresize) {
+      this.enableAutoResize();
+    }
+  }
+
+  enableAutoResize() {
+    const div = this.containerRef.current;
+    if (div) {
+      div.addEventListener('resize', this.containerResizer);
+    }
+
+    window.addEventListener('resize', this.containerResizer);
+  }
+
+  disableAutoResize() {
+    const div = this.containerRef.current;
+    window.removeEventListener('resize', this.containerResizer);
+    if (div) {
+    div.removeEventListener('resize', this.containerResizer);
+    }
+
+    this.containerResizer = null;
+  }
+
+  resizeOnDelay() {
+    if (this.resizeTimer) {
+      clearTimeout(this.resizeTimer);
+    }
+
+    const debounceTime = (typeof this.props.debounceResize === 'number') ?
+      this.props.debounceResize :
+      this.defaultDebounceResize;
+
+    this.resizeTimer = setTimeout(() => {
+      this.goldenLayoutInstance && this.goldenLayoutInstance.updateSize();
+    }, debounceTime);
   }
 
   render() {
     let panels = Array.from(this.state.renderPanels || []);
+    let { style, ...htmlAttrs } = this.props.htmlAttrs || {};
+    style = {
+      ...this.defaultContainerStyle,
+      ...(style || {})
+    };
 
     return (
-      <div ref={this.containerRef} {...this.props.htmlAttrs}>
+      <div
+        ref={this.containerRef}
+        {...htmlAttrs}
+        style={style}
+      >
         {panels.map((panel, index) => {
           return ReactDOM.createPortal(
             panel._getReactComponent(),

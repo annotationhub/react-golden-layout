@@ -8,7 +8,7 @@ This project was forked from the original golden layout project, which unfortuna
 
 Example usage:
 ```typescript
-import React from 'react';
+import React, { useState } from 'react';
 import '@annotationhub/react-golden-layout/dist/css/goldenlayout-base.css';
 import '@annotationhub/react-golden-layout/dist/css/themes/goldenlayout-dark-theme.css';
 import { GoldenLayoutComponent } from '@annotationhub/react-golden-layout';
@@ -26,10 +26,12 @@ function ComponentC(props: any) {
 }
 
 export default function GoldenTest() {
+  const [layoutManager, setLayoutManager] = useState(null);
+
   return (
-    <div>
+    <div style={{ width: '100%', height: '100%' }}>
       <GoldenLayoutComponent
-        htmlAttrs={{ style: { width: '100vw', height: '100vh' }}}
+        // (Required) Golden Layout Config. (See http://golden-layout.com/docs/Config.html)
         config={{
           content: [{
             type: 'row',
@@ -48,6 +50,12 @@ export default function GoldenTest() {
             }]
           }]
         }}
+        // (Optional) Set up auto-resizing. Layout will resize when the window resizes.
+        autoresize={true}
+        // (Optional) (Milliseconds) Debounce resize to prevent excessive re-renders.
+        debounceResize={100}
+        // (Optional) Grab the instance of the GoldenLayout Manager. Gives you full access to GL API.
+        layoutManager={setLayoutManager}
       />
     </div>
   );
