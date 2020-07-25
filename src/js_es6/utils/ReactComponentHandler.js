@@ -14,17 +14,17 @@ import React from 'react';
  */
 
 export default class ReactComponentHandler {
-    constructor(container, state) {
-        this._reactComponent = null;
-        this._originalComponentWillUpdate = null;
-        this._container = container;
-        this._initialState = state;
-        this._reactClass = this._getReactClass();
-        this._container.on("open", this._render, this);
-        this._container.on("destroy", this._destroy, this);
-    }
+  constructor(container, state) {
+    this._reactComponent = null;
+    this._originalComponentWillUpdate = null;
+    this._container = container;
+    this._initialState = state;
+    this._reactClass = this._getReactClass();
+    this._container.on("open", this._render, this);
+    this._container.on("destroy", this._destroy, this);
+  }
 
-    /**
+  /**
      * Creates the react class and component and hydrates it with
      * the initial state - if one is present
      *
@@ -33,14 +33,14 @@ export default class ReactComponentHandler {
      * @private
      * @returns {void}
      */
-    _render() {
-        var reactContainer = this._container.layoutManager.reactContainer; // Instance of GL Class
-        if (reactContainer && reactContainer.componentRender) {
-            reactContainer.componentRender(this);
-        }
+  _render() {
+    var reactContainer = this._container.layoutManager.reactContainer; // Instance of GL Class
+    if (reactContainer && reactContainer.componentRender) {
+      reactContainer.componentRender(this);
     }
+  }
 
-    /**
+  /**
      * Fired by react when the component is created.  Also fired upon destruction (where component is null).
      * <p>
      * Note: This callback is used instead of the return from `ReactDOM.render` because
@@ -51,96 +51,96 @@ export default class ReactComponentHandler {
      * @arg {React.Ref} component The component instance created by the `ReactDOM.render` call in the `_render` method.
      * @returns {void}
      */
-    // _gotReactComponent(component) {
-    //     if (component !== null) {
-    //         this._reactComponent = component;
-    //         this._originalComponentWillUpdate =
-    //             this._reactComponent.componentWillUpdate || function () {};
-    //         this._reactComponent.componentWillUpdate = this._onUpdate.bind(
-    //             this
-    //         );
-    //         if (this._container.getState()) {
-    //             this._reactComponent.setState(this._container.getState());
-    //         }
-    //     }
-    // }
+  // _gotReactComponent(component) {
+  //     if (component !== null) {
+  //         this._reactComponent = component;
+  //         this._originalComponentWillUpdate =
+  //             this._reactComponent.componentWillUpdate || function () {};
+  //         this._reactComponent.componentWillUpdate = this._onUpdate.bind(
+  //             this
+  //         );
+  //         if (this._container.getState()) {
+  //             this._reactComponent.setState(this._container.getState());
+  //         }
+  //     }
+  // }
 
-    /**
+  /**
      * Removes the component from the DOM and thus invokes React's unmount lifecycle
      *
      * @private
      * @returns {void}
      */
-    _destroy() {
-        var reactContainer = this._container.layoutManager.reactContainer;
-        this._container.off("open", this._render, this);
-        this._container.off("destroy", this._destroy, this);
-        if (reactContainer && reactContainer.componentDestroy) {
-            reactContainer.componentDestroy(this);
-        }
+  _destroy() {
+    var reactContainer = this._container.layoutManager.reactContainer;
+    this._container.off("open", this._render, this);
+    this._container.off("destroy", this._destroy, this);
+    if (reactContainer && reactContainer.componentDestroy) {
+      reactContainer.componentDestroy(this);
     }
+  }
 
-    /**
+  /**
      * Hooks into React's state management and applies the componentstate
      * to GoldenLayout
      *
      * @private
      * @returns {void}
      */
-    _onUpdate(nextProps, nextState) {
-        this._container.setState(nextState);
-        this._originalComponentWillUpdate.call(
-            this._reactComponent,
-            nextProps,
-            nextState
-        );
-    }
+  _onUpdate(nextProps, nextState) {
+    this._container.setState(nextState);
+    this._originalComponentWillUpdate.call(
+      this._reactComponent,
+      nextProps,
+      nextState
+    );
+  }
 
-    /**
+  /**
      * Retrieves the react class from GoldenLayout's registry
      *
      * @private
      * @returns {React.Class}
      */
-    _getReactClass() {
-        var componentName = this._container._config.component;
-        var reactClass;
+  _getReactClass() {
+    var componentName = this._container._config.component;
+    var reactClass;
 
-        if (!componentName) {
-            throw new Error(
-                "No react component name. type: react-component needs a field `component`"
-            );
-        }
+    if (!componentName) {
+      throw new Error(
+        "No react component name. type: react-component needs a field `component`"
+      );
+    }
 
-        reactClass = this._container.layoutManager.getComponent(
-            this._container._config
-        );
+    reactClass = this._container.layoutManager.getComponent(
+      this._container._config
+    );
 
-        if (!reactClass) {
-            throw new Error(
-                'React component "' +
+    if (!reactClass) {
+      throw new Error(
+        'React component "' +
                     componentName +
                     '" not found. ' +
                     "Please register all components with GoldenLayout using `registerComponent(name, component)`"
-            );
-        }
-
-        return reactClass;
+      );
     }
 
-    /**
+    return reactClass;
+  }
+
+  /**
      * Copies and extends the properties array and returns the React element
      *
      * @private
      * @returns {React.Element}
      */
-    _getReactComponent() {
-        var defaultProps = {
-            glEventHub: this._container.layoutManager.eventHub,
-            glContainer: this._container,
-            // ref: this._gotReactComponent.bind(this),
-        };
-        var props = $.extend(defaultProps, this._container._config.props);
-        return React.createElement(this._reactClass, props);
-    }
+  _getReactComponent() {
+    var defaultProps = {
+      glEventHub: this._container.layoutManager.eventHub,
+      glContainer: this._container,
+      // ref: this._gotReactComponent.bind(this),
+    };
+    var props = $.extend(defaultProps, this._container._config.props);
+    return React.createElement(this._reactClass, props);
+  }
 }

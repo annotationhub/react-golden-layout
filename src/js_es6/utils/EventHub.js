@@ -3,7 +3,7 @@ import {
   ALL_EVENT
 } from '../utils/EventEmitter'
 import {
-    fnBind
+  fnBind
 } from '../utils/utils'
 import $ from 'jquery'
 
@@ -25,19 +25,19 @@ import $ from 'jquery'
 
 
 export default class EventHub extends EventEmitter {
-    constructor(layoutManager) {
+  constructor(layoutManager) {
         
-        super();
+    super();
 
-        this._layoutManager = layoutManager;
-        this._dontPropagateToParent = null;
-        this._childEventSource = null;
-        this.on(ALL_EVENT, fnBind(this._onEventFromThis, this));
-        this._boundOnEventFromChild = fnBind(this._onEventFromChild, this);
-        $(window).on('gl_child_event', this._boundOnEventFromChild);
-    }
+    this._layoutManager = layoutManager;
+    this._dontPropagateToParent = null;
+    this._childEventSource = null;
+    this.on(ALL_EVENT, fnBind(this._onEventFromThis, this));
+    this._boundOnEventFromChild = fnBind(this._onEventFromChild, this);
+    $(window).on('gl_child_event', this._boundOnEventFromChild);
+  }
 
-    /**
+  /**
      * Called on every event emitted on this eventHub, regardles of origin.
      *
      * @private
@@ -46,32 +46,32 @@ export default class EventHub extends EventEmitter {
      *
      * @returns {void}
      */
-    _onEventFromThis() {
-        var args = Array.prototype.slice.call(arguments);
+  _onEventFromThis() {
+    var args = Array.prototype.slice.call(arguments);
 
-        if (this._layoutManager.isSubWindow && args[0] !== this._dontPropagateToParent) {
-            this._propagateToParent(args);
-        }
-        this._propagateToChildren(args);
-
-        //Reset
-        this._dontPropagateToParent = null;
-        this._childEventSource = null;
+    if (this._layoutManager.isSubWindow && args[0] !== this._dontPropagateToParent) {
+      this._propagateToParent(args);
     }
+    this._propagateToChildren(args);
 
-    /**
+    //Reset
+    this._dontPropagateToParent = null;
+    this._childEventSource = null;
+  }
+
+  /**
      * Called by the parent layout.
      *
      * @param   {Array} args Event name + arguments
      *
      * @returns {void}
      */
-    _$onEventFromParent(args) {
-        this._dontPropagateToParent = args[0];
-        this.emit.apply(this, args);
-    }
+  _$onEventFromParent(args) {
+    this._dontPropagateToParent = args[0];
+    this.emit.apply(this, args);
+  }
 
-    /**
+  /**
      * Callback for child events raised on the window
      *
      * @param   {DOMEvent} event
@@ -79,12 +79,12 @@ export default class EventHub extends EventEmitter {
      *
      * @returns {void}
      */
-    _onEventFromChild(event) {
-        this._childEventSource = event.originalEvent.__gl;
-        this.emit.apply(this, event.originalEvent.__glArgs);
-    }
+  _onEventFromChild(event) {
+    this._childEventSource = event.originalEvent.__gl;
+    this.emit.apply(this, event.originalEvent.__glArgs);
+  }
 
-    /**
+  /**
      * Propagates the event to the parent by emitting
      * it on the parent's DOM window
      *
@@ -93,30 +93,30 @@ export default class EventHub extends EventEmitter {
      *
      * @returns {void}
      */
-    _propagateToParent(args) {
-        var event,
-            eventName = 'gl_child_event';
+  _propagateToParent(args) {
+    var event,
+      eventName = 'gl_child_event';
 
-        if (document.createEvent) {
-            event = window.opener.document.createEvent('HTMLEvents');
-            event.initEvent(eventName, true, true);
-        } else {
-            event = window.opener.document.createEventObject();
-            event.eventType = eventName;
-        }
-
-        event.eventName = eventName;
-        event.__glArgs = args;
-        event.__gl = this._layoutManager;
-
-        if (document.createEvent) {
-            window.opener.dispatchEvent(event);
-        } else {
-            window.opener.fireEvent('on' + event.eventType, event);
-        }
+    if (document.createEvent) {
+      event = window.opener.document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+    } else {
+      event = window.opener.document.createEventObject();
+      event.eventType = eventName;
     }
 
-    /**
+    event.eventName = eventName;
+    event.__glArgs = args;
+    event.__gl = this._layoutManager;
+
+    if (document.createEvent) {
+      window.opener.dispatchEvent(event);
+    } else {
+      window.opener.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  /**
      * Propagate events to children
      *
      * @param   {Array} args Event name + arguments
@@ -124,26 +124,26 @@ export default class EventHub extends EventEmitter {
      *
      * @returns {void}
      */
-    _propagateToChildren(args) {
-        var childGl, i;
+  _propagateToChildren(args) {
+    var childGl, i;
 
-        for (i = 0; i < this._layoutManager.openPopouts.length; i++) {
-            childGl = this._layoutManager.openPopouts[i].getGlInstance();
+    for (i = 0; i < this._layoutManager.openPopouts.length; i++) {
+      childGl = this._layoutManager.openPopouts[i].getGlInstance();
 
-            if (childGl && childGl !== this._childEventSource) {
-                childGl.eventHub._$onEventFromParent(args);
-            }
-        }
+      if (childGl && childGl !== this._childEventSource) {
+        childGl.eventHub._$onEventFromParent(args);
+      }
     }
+  }
 
-    /**
+  /**
      * Destroys the EventHub
      *
      * @public
      * @returns {void}
      */
 
-    destroy() {
-        $(window).off('gl_child_event', this._boundOnEventFromChild);
-    }
+  destroy() {
+    $(window).off('gl_child_event', this._boundOnEventFromChild);
+  }
 }
