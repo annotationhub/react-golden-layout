@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-import { GoldenLayoutComponent } from '../src/index';
 import '../src/less/goldenlayout-base.less';
 import '../src/less/themes/goldenlayout-dark-theme.less';
 import './demo.less';
-import GoldenLayout from '@annotationhub/react-golden-layout';
+import { GoldenLayoutComponent } from '../src';
+// import { GoldenLayoutComponent } from '@annotationhub/react-golden-layout';
 
 function ComponentA() {
   return <h2>A</h2>;
@@ -25,40 +25,26 @@ export default function GoldenTest() {
       component: ComponentA,
       title: 'A Component',
     },
-  ]);
-
-  useEffect(() => {
-    const id = setTimeout(() => {
-      setContent((content) => [
-        ...content,
-
+    {
+      type: 'column',
+      content: [
         {
-          type: 'column',
-          content: [
-            {
-              component: ComponentB,
-              title: 'B Component',
-            },
-            {
-              component: () => (
-                <ComponentC myText='Component with Props' />
-              ),
-              title: 'C Component',
-            },
-          ],
+          component: ComponentB,
+          title: 'B Component',
         },
-      ]);
-    }, 2000);
-
-    return () => clearTimeout(id);
-  }, [setContent]);
+        {
+          component: () => (
+            <ComponentC myText='Component with Props' />
+          ),
+          title: 'C Component',
+        },
+      ],
+    },
+  ]);
 
   return (
     <GoldenLayoutComponent
       htmlAttrs={{ style: { width: '100vw', height: '100vh' } }}
-      onLayoutChange={(...args) => {
-        console.log('layoutchange', args);
-      }}
       config={{
         content: [
           {
