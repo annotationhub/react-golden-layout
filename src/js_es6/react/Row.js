@@ -1,28 +1,28 @@
 import React, { useRef, useState, useEffect } from 'react';
 import randomString from './RandomString';
 import { useContentContext } from './ItemContentProvider';
+import { useLayoutContext } from './ReactLayoutComponent';
+import { useParentItemContext, ParentItemContext } from './ParentItemContext';
 
 export default function Row({ children }) {
-  const [ id, ] = useState(randomString());
-  const [ config, setConfig ] = useState({ type: 'row' });
-  const { addItemConfig, updateItemConfig } = useContentContext();
+  const [ config, setConfig ] = useState(
+    { type: 'row' }
+  );
+  const [ item, setItem ] = useState();
+
+  const { parent } = useParentItemContext();
 
   useEffect(() => {
-    addItemConfig({ ...config, content: [] })
-  }, []);
-
-  useEffect(() => {
-    console.log('ran');
-    // addItemConfig({
-    //   type: 'row',
-    //   content: []
-    // })
-  }, []);
+    // TODO: Provide these lifecycle actions from parent instead.
+    if (parent) {
+      setItem(parent.addChild(config));
+    }
+  }, [parent]);
 
   return (
-    <>
+    <ParentItemContext.Provider value={{ parent: item }}>
       { children }
-    </>
+    </ParentItemContext.Provider>
   );
 }
 

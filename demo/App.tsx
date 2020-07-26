@@ -56,7 +56,7 @@ function ComponentC(props: any) {
 export default function GoldenTest() {
   // TODO: import the GoldenLayout.ItemConfigType typings here, not sure how with local demo
   return (
-    <ReactGoldenLayout>
+    <ReactGoldenLayout htmlAttrs={{ style: { width: '100vw', height: '100vh' } }}>
       <ReactGoldenLayout.Row>
         <h1>Test</h1>
       </ReactGoldenLayout.Row>
