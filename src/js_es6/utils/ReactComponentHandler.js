@@ -81,22 +81,6 @@ export default class ReactComponentHandler {
   }
 
   /**
-     * Hooks into React's state management and applies the componentstate
-     * to GoldenLayout
-     *
-     * @private
-     * @returns {void}
-     */
-  _onUpdate(nextProps, nextState) {
-    this._container.setState(nextState);
-    this._originalComponentWillUpdate.call(
-      this._reactComponent,
-      nextProps,
-      nextState
-    );
-  }
-
-  /**
      * Retrieves the react class from GoldenLayout's registry
      *
      * @private

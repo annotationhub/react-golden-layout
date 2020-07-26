@@ -934,3 +934,18 @@ export interface GoldenLayoutComponentProps {
 export class GoldenLayoutComponent extends React.Component<
     GoldenLayoutComponentProps
 > {}
+
+export interface ReactGoldenLayoutProps {
+    htmlAttrs?: { [prop: string]: any };
+    settings?: Settings;
+    dimensions?: Dimensions;
+    labels?: Labels;
+    onLayoutReady?: (layout: GoldenLayout) => unknown;
+}
+
+export class ReactGoldenLayout
+    extends React.Component<ReactGoldenLayoutProps> {}
+
+export namespace ReactGoldenLayout {
+    export class Row extends React.Component<any> {}
+}

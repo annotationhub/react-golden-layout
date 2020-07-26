@@ -30,3 +30,9 @@ export { default as EventEmitter } from './js_es6/utils/EventEmitter'
 export { default as EventHub } from './js_es6/utils/EventHub'
 export { default as ReactComponentHandler } from './js_es6/utils/ReactComponentHandler'
 export { default as GoldenLayoutComponent } from './js_es6/utils/ReactLayoutComponent'
+import { default as ReactGoldenLayout } from './js_es6/react/ReactLayoutComponent'
+
+import { default as Row } from './js_es6/react/Row';
+ReactGoldenLayout.Row = Row;
+
+export { ReactGoldenLayout as ReactGoldenLayout };
