@@ -946,7 +946,11 @@ export interface ReactGoldenLayoutProps {
 export class ReactGoldenLayout
     extends React.Component<ReactGoldenLayoutProps> {}
 
+export type LayoutItemProps = Pick<ItemConfig, 'width' | 'height' | 'id' | 'isClosable' | 'title'>;
+
 export namespace ReactGoldenLayout {
-    export class Row extends React.Component<any> {}
-    export class Content extends React.Component<any> {}
+    export class Row extends React.Component<LayoutItemProps> {}
+    export class Column extends React.Component<LayoutItemProps> {}
+    export class Stack extends React.Component<LayoutItemProps> {}
+    export class Content extends React.Component<LayoutItemProps> {}
 }

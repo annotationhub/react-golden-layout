@@ -1,9 +1,9 @@
 import React from 'react';
 import LayoutItem from './LayoutItem';
 
-export default function Row({ children, ...props }) {
+export default function Stack({ children, ...props }) {
   return (
-    <LayoutItem type='row' {...props}>
+    <LayoutItem type='stack' {...props}>
       { children }
     </LayoutItem>
   )

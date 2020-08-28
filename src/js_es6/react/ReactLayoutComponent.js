@@ -31,19 +31,20 @@ export default function ReactLayoutComponent({
       containerRef.current
     );
 
-    manager.registerComponent( 'testComponent', function( container, componentState ){
-      container.getElement().html( '<h2>' + componentState.label + '</h2>' );
-    });
-
     manager.init();
     setRootItem(manager.root);
-
     setLayoutManager(manager);
+
+    const updateSize = () => {};
+    manager.on('itemCreated', updateSize);
+
+    console.log(manager);
 
     return () => {
       manager && manager.destroy();
       setLayoutManager(undefined);
       setRootItem(undefined);
+      manager.off('itemCreated', updateSize);
     }
   }, [containerRef]);
 

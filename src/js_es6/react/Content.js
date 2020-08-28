@@ -4,25 +4,46 @@ import { useContentContext } from './ItemContentProvider';
 import { useLayoutContext } from './ReactLayoutComponent';
 import { useParentItemContext } from './ParentItemContext';
 
-export default function Content({ children, key, name }) {
-  const [ id, ] = useState(`${key}_${name}_${getUniqueId()}`);
+export default function Content({
+  children,
+  key,
+  name,
+  width,
+  height,
+  id: idProp,
+  isClosable,
+  title
+}) {
+  const [ id, ] = useState(idProp || `${key}_${name}_${getUniqueId()}`);
 
   const [ config, setConfig ] = useState({ type: 'react-component' });
+  const [ item, setItem ] = useState();
   const { parent } = useParentItemContext();
   const layoutManager = useLayoutContext();
 
+  const configProps = { width, height, id, isClosable, title };
+
   useEffect(() => {
-    console.log('running', parent);
+    let createdLayoutItem;
     if (!layoutManager || !parent) {
       return;
     }
 
     layoutManager.registerComponent(id, () => <>{children}</>);
-    console.log('adding child');
     parent.addChild({
+      ...configProps,
       type: 'react-component',
       component: id
     });
+    createdLayoutItem = parent.getItemsById(config.id)[0];
+    setItem(createdLayoutItem);
+
+    return () => {
+      if (layoutManager && parent) {
+        parent.removeChild(createdLayoutItem);
+        layoutManager.unregisterComponent(id);
+      }
+    }
   }, [layoutManager, parent]);
 
   return null;

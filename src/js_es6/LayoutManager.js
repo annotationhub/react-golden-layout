@@ -147,6 +147,17 @@ export default class LayoutManager extends EventEmitter {
   }
 
   /**
+   * Deregisters a component with the layout manager.
+   * Useful to avoid memory leaks.
+   * @param {*} name 
+   */
+  unregisterComponent(name) {
+    if (this._components[name]) {
+      delete this._components[name];
+    }
+  }
+
+  /**
      * Register a component function with the layout manager. This function should
      * return a constructor for a component based on a config.  If undefined is returned, 
      * and no component has been registered under that name using registerComponent, an 

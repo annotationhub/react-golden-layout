@@ -33,8 +33,10 @@ export { default as GoldenLayoutComponent } from './js_es6/utils/ReactLayoutComp
 import { default as ReactGoldenLayout } from './js_es6/react/ReactLayoutComponent'
 
 import { default as Row } from './js_es6/react/Row';
+import { default as Column } from './js_es6/react/Column';
 import { default as Content } from './js_es6/react/Content';
 ReactGoldenLayout.Row = Row;
+ReactGoldenLayout.Column = Column;
 ReactGoldenLayout.Content = Content;
 
 export { ReactGoldenLayout as ReactGoldenLayout };
