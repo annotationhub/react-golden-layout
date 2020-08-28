@@ -1,33 +1,31 @@
 import React, { useRef, useState, useEffect } from 'react';
-import randomString from './RandomString';
+import { getUniqueId } from '../utils/utils';
 import { useContentContext } from './ItemContentProvider';
 import { useLayoutContext } from './ReactLayoutComponent';
+import { useParentItemContext } from './ParentItemContext';
 
 export default function Content({ children, key, name }) {
-  const [ id, ] = useState(`${key}_${name}_${randomString()}`);
+  const [ id, ] = useState(`${key}_${name}_${getUniqueId()}`);
 
   const [ config, setConfig ] = useState({ type: 'react-component' });
-  const { addItemConfig, updateItemConfig } = useContentContext();
-  const { layoutManager } = useLayoutContext();
+  const { parent } = useParentItemContext();
+  const layoutManager = useLayoutContext();
 
   useEffect(() => {
-    addItemConfig({ ...config, content: [] })
-    console.log(layoutManager);
-  }, []);
+    console.log('running', parent);
+    if (!layoutManager || !parent) {
+      return;
+    }
 
-  useEffect(() => {
-    console.log('ran');
-    // addItemConfig({
-    //   type: 'row',
-    //   content: []
-    // })
-  }, []);
+    layoutManager.registerComponent(id, () => <>{children}</>);
+    console.log('adding child');
+    parent.addChild({
+      type: 'react-component',
+      component: id
+    });
+  }, [layoutManager, parent]);
 
-  return (
-    <>
-      { children }
-    </>
-  );
+  return null;
 }
 
-Row.$$_GL_TYPE = 'row';
+Content.$$_GL_TYPE = 'content';

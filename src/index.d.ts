@@ -948,4 +948,5 @@ export class ReactGoldenLayout
 
 export namespace ReactGoldenLayout {
     export class Row extends React.Component<any> {}
+    export class Content extends React.Component<any> {}
 }

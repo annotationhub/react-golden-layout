@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect, useContext } from "react";
-import ReactDOM from "react-dom";
 import LayoutManager from "../LayoutManager";
 import { ContentProvider } from './ItemContentProvider';
 import { ParentItemContext } from './ParentItemContext';
@@ -15,7 +14,7 @@ export default function ReactLayoutComponent({
   children
 }) {
   const containerRef = useRef();
-  const [layoutManager, setLayoutManager] = useState();
+  const [ layoutManager, setLayoutManager ] = useState();
   const [ rootItem, setRootItem ] = useState();
 
   // Default to filling parent container.
@@ -27,7 +26,6 @@ export default function ReactLayoutComponent({
   };
 
   useEffect(() => {
-    console.log(containerRef.current);
     let manager = new LayoutManager(
       { settings, dimensions, labels, content: [] },
       containerRef.current
@@ -39,7 +37,6 @@ export default function ReactLayoutComponent({
 
     manager.init();
     setRootItem(manager.root);
-    console.log(manager);
 
     setLayoutManager(manager);
 
