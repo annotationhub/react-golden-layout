@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getUniqueId } from '../utils/utils';
 import { useParentItemContext, ParentItemContext } from './ParentItemContext';
 
@@ -15,36 +15,40 @@ export default function LayoutItem({
     { type, id: id || getUniqueId() }
   );
   const [ item, setItem ] = useState();
-  const { parent } = useParentItemContext();
+  const { index, addToLayout } = useParentItemContext();
+  const [ initialized, setInitialized ] = useState(false);
 
   const configProps = { width, height, id, isClosable, title };
 
   useEffect(() => {
-    let createdLayoutItem;
-    if (!parent) {
-      return;
+    const layoutItem = addToLayout(index, { ...configProps, ...config });
+    setItem(layoutItem);
+
+    return () => console.log('destroyed');
+  }, []);
+
+  const addChild = useCallback((idx, config) => {
+    const isLastChild = idx >= (children.length - 1);
+
+    const suspendResize = !initialized && !isLastChild;
+    item.addChild(config, idx, suspendResize);
+
+    if (!initialized && isLastChild) {
+      setInitialized(true);
     }
 
-    parent.addChild({ ...configProps, ...config});
-    createdLayoutItem = parent.getItemsById(config.id)[0];
-    setItem(createdLayoutItem);
+    return item.getItemsById(config.id)[0];
+  }, [children, item]);
 
-    console.log(createdLayoutItem);
-
-    // const resize = () => createdLayoutItem.setSize();
-    // createdLayoutItem.on('itemCreated', resize)
-
-    return () => {
-      if (parent && createdLayoutItem) {
-        parent.removeChild(createdLayoutItem);
-        // createdLayoutItem.off('itemCreated', resize)
-      }
-    }
-  }, [parent]);
+  if (!item) {
+    return null;
+  }
 
   return (
-    <ParentItemContext.Provider value={{ parent: item }}>
-      { children }
-    </ParentItemContext.Provider>
+    React.Children.toArray(children).map((child, idx) => 
+      <ParentItemContext.Provider key={idx} value={{ addToLayout: addChild, index: idx }}>
+        { child }
+      </ParentItemContext.Provider>
+    )
   );
 }

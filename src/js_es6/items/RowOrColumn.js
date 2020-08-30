@@ -73,6 +73,11 @@ export default class RowOrColumn extends AbstractContentItem {
 
     AbstractContentItem.prototype.addChild.call(this, contentItem, index);
 
+    const weightedSize = this.contentItems.reduce(
+      (size, item) => size + item.config[this._dimension],
+      0
+    );
+
     newItemSize = (1 / this.contentItems.length) * 100;
 
     if (_$suspendResize === true) {

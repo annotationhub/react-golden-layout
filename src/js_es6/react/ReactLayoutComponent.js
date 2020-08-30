@@ -1,6 +1,5 @@
-import React, { useRef, useState, useEffect, useContext } from "react";
+import React, { useRef, useState, useEffect, useContext, useCallback } from "react";
 import LayoutManager from "../LayoutManager";
-import { ContentProvider } from './ItemContentProvider';
 import { ParentItemContext } from './ParentItemContext';
 
 const LayoutContext = React.createContext({});
@@ -16,6 +15,7 @@ export default function ReactLayoutComponent({
   const containerRef = useRef();
   const [ layoutManager, setLayoutManager ] = useState();
   const [ rootItem, setRootItem ] = useState();
+  const [ initialized, setInitialized ] = useState(true);
 
   // Default to filling parent container.
   let { style, ...restHtmlAttrs } = htmlAttrs || {};
@@ -48,15 +48,28 @@ export default function ReactLayoutComponent({
     }
   }, [containerRef]);
 
+  const addChild = useCallback((idx, config) => {
+    const isLastChild = idx >= (children.length - 1);
+
+    const suspendResize = !initialized && !isLastChild;
+    rootItem.addChild(config, idx, suspendResize);
+
+    if (!initialized && isLastChild) {
+      setInitialized(true);
+    }
+
+    return rootItem.getItemsById(config.id)[0];
+  }, [children, rootItem]);
+
   return (
     <LayoutContext.Provider value={layoutManager}>
-      <ParentItemContext.Provider value={{ parent: rootItem }}>
-        <ContentProvider onConfigUpdate={console.log}>
-          <div ref={containerRef} {...restHtmlAttrs} style={style}>
-            { children }
-          </div>
-        </ContentProvider>
-      </ParentItemContext.Provider>
+      <div ref={containerRef} {...restHtmlAttrs} style={style}>
+        { rootItem && React.Children.toArray(children).map((child, idx) => 
+          <ParentItemContext.Provider key={idx} value={{ addToLayout: addChild, index: idx }}>
+            { child }
+          </ParentItemContext.Provider>
+        ) }
+      </div>
     </LayoutContext.Provider>
   );
 }

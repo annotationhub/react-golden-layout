@@ -1,8 +1,9 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { getUniqueId } from '../utils/utils';
-import { useContentContext } from './ItemContentProvider';
-import { useLayoutContext } from './ReactLayoutComponent';
-import { useParentItemContext } from './ParentItemContext';
+import React, { useRef, useState, useEffect } from "react";
+import ReactDOM from "react-dom";
+import { getUniqueId } from "../utils/utils";
+import { useContentContext } from "./ItemContentProvider";
+import { useLayoutContext } from "./ReactLayoutComponent";
+import { useParentItemContext } from "./ParentItemContext";
 
 export default function Content({
   children,
@@ -18,35 +19,36 @@ export default function Content({
 
   const [ config, setConfig ] = useState({ type: 'react-component' });
   const [ item, setItem ] = useState();
-  const { parent } = useParentItemContext();
+  const { addToLayout, index } = useParentItemContext();
   const layoutManager = useLayoutContext();
 
   const configProps = { width, height, id, isClosable, title };
 
   useEffect(() => {
-    let createdLayoutItem;
-    if (!layoutManager || !parent) {
-      return;
-    }
-
-    layoutManager.registerComponent(id, () => <>{children}</>);
-    parent.addChild({
-      ...configProps,
-      type: 'react-component',
-      component: id
-    });
-    createdLayoutItem = parent.getItemsById(config.id)[0];
-    setItem(createdLayoutItem);
-
-    return () => {
-      if (layoutManager && parent) {
-        parent.removeChild(createdLayoutItem);
-        layoutManager.unregisterComponent(id);
+    // React component is a no-op. Everything is rendered through a react portal.
+    layoutManager.registerComponent(id, () => <></>);
+    const item = addToLayout(
+      index,
+      {
+        ...configProps,
+        type: 'react-component',
+        component: id
       }
-    }
-  }, [layoutManager, parent]);
+    );
 
-  return null;
+    setItem(item);
+
+    return () => console.log('cleanup');
+  }, [addToLayout]);
+
+  return (<>
+    {
+      item && ReactDOM.createPortal(
+        <>{children}</>,
+        item.container._contentElement[0]
+      )
+    }
+  </>);
 }
 
 Content.$$_GL_TYPE = 'content';
