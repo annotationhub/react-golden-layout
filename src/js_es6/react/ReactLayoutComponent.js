@@ -1,10 +1,8 @@
 import React, { useRef, useState, useEffect, useContext, useCallback } from "react";
 import LayoutManager from "../LayoutManager";
 import { ParentItemContext } from './ParentItemContext';
-import LayoutItem from './LayoutItem';
-
-const LayoutContext = React.createContext({});
-export const useLayoutContext = () => useContext(LayoutContext);
+import LayoutItem, { LayoutItemNew } from './LayoutItem';
+import { LayoutContext } from './LayoutContext';
 
 export default function ReactLayoutComponent({
   htmlAttrs,
@@ -36,8 +34,6 @@ export default function ReactLayoutComponent({
     setRootItem(manager.root);
     setLayoutManager(manager);
 
-    console.log(manager.root);
-
     return () => {
       manager && manager.destroy();
       setLayoutManager(undefined);
@@ -45,17 +41,25 @@ export default function ReactLayoutComponent({
     }
   }, [containerRef]);
 
+  function initializeRoot(rootConfig) {
+    // Root config may only have one child item.
+    console.log(rootConfig.content);
+    rootItem.addChild(rootConfig.content[0]);
+  }
 
   return (
-    <LayoutContext.Provider value={layoutManager}>
+    <LayoutContext.Provider value={{
+      index: 0,
+      glItemInstance: rootItem,
+      layoutManager,
+      registerConfig: initializeRoot
+    }}>
       <div ref={containerRef} {...restHtmlAttrs} style={style}>
         {
           rootItem &&
-          <ParentItemContext.Provider value={{ index: 0, glItemInstance: rootItem }}>
             <LayoutRoot type='root'>
               { children }
             </LayoutRoot>
-          </ParentItemContext.Provider>
         }
       </div>
     </LayoutContext.Provider>
@@ -64,8 +68,8 @@ export default function ReactLayoutComponent({
 
 function LayoutRoot({ children, ...props }) {
   return (
-    <LayoutItem type='root' {...props}>
+    <LayoutItemNew type='root' {...props}>
       { children }
-    </LayoutItem>
+    </LayoutItemNew>
   )
 }

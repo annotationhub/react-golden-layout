@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useReducer } from 'react';
 import { getUniqueId } from '../utils/utils';
 import { useParentItemContext, ParentItemContext } from './ParentItemContext';
-import { useLayoutContext } from "./ReactLayoutComponent";
+import { useLayoutContext, LayoutContext } from "./LayoutContext";
 
 export const GL_LAYOUT_ITEM_TYPES = {
   ROOT: 'root',
@@ -9,6 +9,111 @@ export const GL_LAYOUT_ITEM_TYPES = {
   COLUMN: 'column',
   STACK: 'stack'
 };
+
+export class LayoutItemNew extends React.Component {
+  static contextType = LayoutContext;
+
+  constructor(props) {
+    super(props);
+
+    const { width, height, isClosable, title } = props;
+    const configProps = { width, height, isClosable, title };
+    const id = props.id || getUniqueId();
+
+    this.state = {
+      id,
+      itemInstance: null,
+      registered: false,
+      config: {
+        ...configProps,
+        id,
+        type: props.type,
+        content: []
+      }
+    };
+  }
+
+  componentDidMount() {
+    this._setupEventListeners();
+  }
+
+  componentWillUnmount() {
+    this._removeEventListeners();
+  }
+
+  registerChildConfig(childConfig, idx) {
+    this.setState(prev => {
+      let childConfigs = [ ...prev.config.content ];
+      childConfigs[idx] = childConfig;
+
+      return {
+        ...prev,
+        config: {
+          ...prev.config,
+          content: childConfigs
+        }
+      }
+    });
+  }
+
+  componentDidUpdate() {
+    this._registerIfReady();
+  }
+
+  _registerIfReady() {
+    if (this.state.registered) {
+      return;
+    }
+
+    const { config } = this.state;
+    const { children } = this.props;
+    const { index } = this.context;
+
+    const numChildren = React.Children.toArray(children).length;
+
+    // Children register at their proper index, so may leave unset array indices.
+    const registeredChildren = config.content.filter(config => !!config);
+    if (registeredChildren.length === numChildren) {
+      this.context.registerConfig(config, index);
+      this.setState({ registered: true });
+    }
+  }
+
+  _setupEventListeners() {
+    const { layoutManager } = this.context;
+
+    layoutManager.on('itemCreated', this._setItem);
+  }
+
+  _removeEventListeners() {
+    layoutManager.off('itemCreated', this._setItem);
+  }
+
+  _setItem = (item) => {
+    if (item.config.id === this.state.id) {
+      this.setState({ itemInstance: item });
+    }
+  }
+
+  render() {
+    const { children } = this.props;
+
+    return (
+      React.Children.toArray(children).map((child, idx) => 
+        <LayoutContext.Provider
+          key={idx}
+          value={{
+            layoutManager: this.context.layoutManager,
+            registerConfig: this.registerChildConfig.bind(this),
+            index: idx
+          }}
+        >
+          { child }
+        </LayoutContext.Provider>
+      )
+    );
+  }
+}
 
 export default function LayoutItem({
   type,
@@ -71,6 +176,7 @@ export default function LayoutItem({
     return () => {
       if (type !== GL_LAYOUT_ITEM_TYPES.ROOT) {
         unregisterConfig(config.id);
+        
         setRegistered(false);
       }
     }
@@ -149,9 +255,9 @@ export default function LayoutItem({
 
     const childInstance = itemInstance.getItemsById(id)[0];
 
-    if (childInstance?.parent && (childInstance.parent === itemInstance || itemInstance.contentItems.indexOf(childInstance.parent) >= 0)) {
-      childInstance.parent.removeChild(childInstance);
-    }
+    // if (childInstance?.parent && (childInstance.parent === itemInstance || itemInstance.contentItems.indexOf(childInstance.parent) >= 0)) {
+    //   childInstance.parent.removeChild(childInstance);
+    // }
   }, [itemInstance]);
 
   return (

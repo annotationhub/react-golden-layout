@@ -7,8 +7,6 @@ import { ReactGoldenLayout } from '../src';
 
 const { Row, Column, Stack, Content } = ReactGoldenLayout;
 
-console.log(Stack);
-
 export default function GoldenTest() {
   const Render1 = (
     <Column id='column_1'>
@@ -28,8 +26,6 @@ export default function GoldenTest() {
   //     </Content>
   //   </Stack>
   // );
-
-
 
   const Render2 = (
     <Row id='row_1'>
@@ -71,17 +67,22 @@ export default function GoldenTest() {
 
   const [ render, setRender ] = useState(1);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setRender(render + 1);
-    }, 1000);
-  }, [render]);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setRender(render + 1);
+  //   }, 2000);
+  // }, [render]);
 
   return (
     <ReactGoldenLayout htmlAttrs={{ style: { width: '100vw', height: '100vh' } }}>
-      { render === 1 && Render1 }
-      { render === 2 && Render2 }
-      { render === 3 && Render3 }
+      <Column id='column_1'>
+        <Content height={25} title='column_content_1'>
+          <h1>Column Test 1</h1>
+        </Content>
+        <Content height={75}>
+          <h1>Column Test 2</h1>
+        </Content>
+      </Column>
     </ReactGoldenLayout>
   );
 }

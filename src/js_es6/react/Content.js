@@ -1,10 +1,77 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { getUniqueId } from "../utils/utils";
-import { useLayoutContext } from "./ReactLayoutComponent";
+import { LayoutContext, useLayoutContext } from "./LayoutContext";
 import { useParentItemContext } from "./ParentItemContext";
 
-export default function Content({
+export default class ContentNew extends React.Component {
+  static contextType = LayoutContext;
+
+  constructor(props) {
+    super(props);
+
+    const { width, height, isClosable, title } = props;
+    const configProps = { width, height, isClosable, title };
+    const id = props.id || getUniqueId();
+
+    this.state = {
+      id,
+      itemInstance: null,
+      config: {
+        ...configProps,
+        id,
+        type: 'react-component',
+        component: id,
+        content: []
+      }
+    };
+  }
+
+  componentDidMount() {
+    const { layoutManager, registerConfig, index } = this.context;
+
+    layoutManager.registerComponent(this.state.id, () => <></>);
+    registerConfig(this.state.config, index);
+
+    this._setupEventListeners();
+  }
+
+  componentWillUnmount() {
+    this._removeEventListeners();
+  }
+
+  _setupEventListeners() {
+    const { layoutManager } = this.context;
+
+    layoutManager.on('itemCreated', this._setItem);
+  }
+
+  _removeEventListeners() {
+    layoutManager.off('itemCreated', this._setItem);
+  }
+
+  _setItem = (item) => {
+    if (item.config.id === this.state.id) {
+      this.setState({ itemInstance: item });
+    }
+  }
+
+  render() {
+    const { itemInstance } = this.state;
+    const { children } = this.props;
+
+    return (<>
+      {
+        itemInstance && ReactDOM.createPortal(
+          <>{children}</>,
+          itemInstance.container._contentElement[0]
+        )
+      }
+    </>);
+  }
+}
+
+export function Content({
   children,
   key,
   name,
@@ -44,7 +111,9 @@ export default function Content({
   }, [registerConfig, registered]);
 
   useEffect(() => {
-    return () => unregisterConfig(id);
+    return () => {
+      unregisterConfig(id);
+    }
   }, [unregisterConfig]);
 
   useEffect(() => {
