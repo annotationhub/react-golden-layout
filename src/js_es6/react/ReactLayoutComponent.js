@@ -36,12 +36,15 @@ export default function ReactLayoutComponent({
     setRootItem(manager.root);
     setLayoutManager(manager);
 
+    console.log(manager.root);
+
     return () => {
       manager && manager.destroy();
       setLayoutManager(undefined);
       setRootItem(undefined);
     }
   }, [containerRef]);
+
 
   return (
     <LayoutContext.Provider value={layoutManager}>

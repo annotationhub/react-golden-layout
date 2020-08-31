@@ -35,8 +35,10 @@ import { default as ReactGoldenLayout } from './js_es6/react/ReactLayoutComponen
 import { default as Row } from './js_es6/react/Row';
 import { default as Column } from './js_es6/react/Column';
 import { default as Content } from './js_es6/react/Content';
+import { default as ReactStack } from './js_es6/react/Stack';
 ReactGoldenLayout.Row = Row;
 ReactGoldenLayout.Column = Column;
 ReactGoldenLayout.Content = Content;
+ReactGoldenLayout.Stack = ReactStack;
 
 export { ReactGoldenLayout as ReactGoldenLayout };

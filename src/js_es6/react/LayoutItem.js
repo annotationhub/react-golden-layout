@@ -27,7 +27,6 @@ export default function LayoutItem({
   const { index, registerConfig, unregisterConfig, parent } = useParentItemContext();
   const [ registered, setRegistered ] = useState(false);
   const [ itemInstance, setItemInstance ] = useState(null);
-  const [ unmounted, setUnmounted ] = useState(false);
   const [ childConfigs, updateChildConfigs ] = useReducer(
     (state, update) => update(state),
     []
@@ -76,10 +75,6 @@ export default function LayoutItem({
       }
     }
   }, [unregisterConfig]);
-
-  useState(() => {
-    return () => setUnmounted(true);
-  }, []);
 
   /**
    * Initializes the root component.
@@ -154,8 +149,8 @@ export default function LayoutItem({
 
     const childInstance = itemInstance.getItemsById(id)[0];
 
-    if (childInstance) {
-      itemInstance.removeChild(childInstance);
+    if (childInstance?.parent && (childInstance.parent === itemInstance || itemInstance.contentItems.indexOf(childInstance.parent) >= 0)) {
+      childInstance.parent.removeChild(childInstance);
     }
   }, [itemInstance]);
 

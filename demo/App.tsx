@@ -7,10 +7,12 @@ import { ReactGoldenLayout } from '../src';
 
 const { Row, Column, Stack, Content } = ReactGoldenLayout;
 
+console.log(Stack);
+
 export default function GoldenTest() {
   const Render1 = (
     <Column id='column_1'>
-      <Content height={25} title='column_content_1' id='column_content_1'>
+      <Content height={25} title='column_content_1'>
         <h1>Column Test 1</h1>
       </Content>
       <Content height={75}>
@@ -19,9 +21,19 @@ export default function GoldenTest() {
     </Column>
   );
 
+  // const Render1 = (
+  //   <Stack>
+  //     <Content height={25} title='column_content_1'>
+  //       <h1>Column Test 1</h1>
+  //     </Content>
+  //   </Stack>
+  // );
+
+
+
   const Render2 = (
     <Row id='row_1'>
-      <Content width={25} title='row_content_1' id='row_content_1'>
+      <Content width={25} title='row_content_1'>
         <h1>Row Test 1</h1>
       </Content>
       <Content width={25}>
@@ -41,7 +53,7 @@ export default function GoldenTest() {
       <Content width={20} title='Directory Manager'>
         <h1>Directory Manager</h1>
       </Content>
-      <Column width={80} id='column_1'>
+      <Column width={80}>
         <Row>
           <Content width={25} title='Schema Manager'>
             <h1>Schema Manager</h1>
@@ -57,19 +69,19 @@ export default function GoldenTest() {
     </Row>
   );
 
-  // const [ render, setRender ] = useState(1);
+  const [ render, setRender ] = useState(1);
 
-  // console.log(render);
-
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setRender((render + 1) % 4 + 1);
-  //   }, 1000);
-  // }, [render]);
+  useEffect(() => {
+    setTimeout(() => {
+      setRender(render + 1);
+    }, 1000);
+  }, [render]);
 
   return (
     <ReactGoldenLayout htmlAttrs={{ style: { width: '100vw', height: '100vh' } }}>
-      { Render3 }
+      { render === 1 && Render1 }
+      { render === 2 && Render2 }
+      { render === 3 && Render3 }
     </ReactGoldenLayout>
   );
 }

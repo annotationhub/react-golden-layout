@@ -18,11 +18,16 @@ export default function Content({
 
   const [ itemInstance, setItemInstance ] = useState();
   const { registerConfig, unregisterConfig,  index, parent } = useParentItemContext();
+  const [ registered, setRegistered ] = useState(false);
   const layoutManager = useLayoutContext();
 
   const configProps = { width, height, id, isClosable, title };
 
   useEffect(() => {
+    if (registered) {
+      return;
+    }
+
     // React component is a no-op. Everything is rendered through a react portal.
     layoutManager.registerComponent(id, () => <></>);
 
@@ -35,11 +40,12 @@ export default function Content({
       }
     );
 
-    return () => {
-      unregisterConfig(id);
-      layoutManager.unregisterComponent(id);
-    }
-  }, [registerConfig]);
+    setRegistered(true);
+  }, [registerConfig, registered]);
+
+  useEffect(() => {
+    return () => unregisterConfig(id);
+  }, [unregisterConfig]);
 
   useEffect(() => {
     if (!parent) {
