@@ -65,24 +65,19 @@ export default function GoldenTest() {
     </Row>
   );
 
-  const [ render, setRender ] = useState(1);
+  const [ render, setRender ] = useState(0);
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setRender(render + 1);
-  //   }, 2000);
-  // }, [render]);
+  useEffect(() => {
+    setTimeout(() => {
+      setRender((render + 1) % 3);
+    }, 2000);
+  }, [render]);
 
   return (
     <ReactGoldenLayout htmlAttrs={{ style: { width: '100vw', height: '100vh' } }}>
-      <Column id='column_1'>
-        <Content height={25} title='column_content_1'>
-          <h1>Column Test 1</h1>
-        </Content>
-        <Content height={75}>
-          <h1>Column Test 2</h1>
-        </Content>
-      </Column>
+      { render === 0 && Render1 }
+      { render === 1 && Render2 }
+      { render === 2 && Render3 }
     </ReactGoldenLayout>
   );
 }

@@ -47,7 +47,7 @@ export default class ContentNew extends React.Component {
   }
 
   _removeEventListeners() {
-    layoutManager.off('itemCreated', this._setItem);
+    this.context.layoutManager.off('itemCreated', this._setItem);
   }
 
   _setItem = (item) => {

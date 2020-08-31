@@ -16,7 +16,7 @@ export class LayoutItemNew extends React.Component {
   constructor(props) {
     super(props);
 
-    const { width, height, isClosable, title } = props;
+    const { width, height, isClosable, title, type } = props;
     const configProps = { width, height, isClosable, title };
     const id = props.id || getUniqueId();
 
@@ -27,7 +27,7 @@ export class LayoutItemNew extends React.Component {
       config: {
         ...configProps,
         id,
-        type: props.type,
+        type,
         content: []
       }
     };
@@ -35,13 +35,22 @@ export class LayoutItemNew extends React.Component {
 
   componentDidMount() {
     this._setupEventListeners();
+
+    if (this.props.type === GL_LAYOUT_ITEM_TYPES.ROOT && !this.state.itemInstance) {
+      this.setState({ itemInstance: this.context.layoutManager.root });
+    }
   }
 
   componentWillUnmount() {
     this._removeEventListeners();
+    this.context.unregister(this.state.id);
   }
 
-  registerChildConfig(childConfig, idx) {
+  registerChild(childConfig, idx) {
+    if (this.state.registered) {
+      this.state.itemInstance.addChild(childConfig, idx);
+    }
+
     this.setState(prev => {
       let childConfigs = [ ...prev.config.content ];
       childConfigs[idx] = childConfig;
@@ -56,7 +65,31 @@ export class LayoutItemNew extends React.Component {
     });
   }
 
-  componentDidUpdate() {
+  unregisterChild(id) {
+    if (this.state.registered) {
+      const foundInstance = this.context.layoutManager.root.getItemsById(id)[0];
+      if (foundInstance) {
+        foundInstance.parent.removeChild(foundInstance);
+      }
+    }
+
+    this.setState(prev => {
+      const prevContent = prev.config.content;
+      // This may alter indices of other children, but after registration, config
+      // state is purely managed by GL. This update (should) mirror GL's after child removal.
+      const childConfigs = prevContent.filter(config => config.id !== id);
+
+      return {
+        ...prev,
+        config: {
+          ...prev.config,
+          content: childConfigs
+        }
+      }
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
     this._registerIfReady();
   }
 
@@ -80,13 +113,11 @@ export class LayoutItemNew extends React.Component {
   }
 
   _setupEventListeners() {
-    const { layoutManager } = this.context;
-
-    layoutManager.on('itemCreated', this._setItem);
+    this.context.layoutManager.on('itemCreated', this._setItem);
   }
 
   _removeEventListeners() {
-    layoutManager.off('itemCreated', this._setItem);
+    this.context.layoutManager.off('itemCreated', this._setItem);
   }
 
   _setItem = (item) => {
@@ -104,7 +135,8 @@ export class LayoutItemNew extends React.Component {
           key={idx}
           value={{
             layoutManager: this.context.layoutManager,
-            registerConfig: this.registerChildConfig.bind(this),
+            registerConfig: this.registerChild.bind(this),
+            unregister: this.unregisterChild.bind(this),
             index: idx
           }}
         >

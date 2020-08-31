@@ -50,7 +50,6 @@ export default function ReactLayoutComponent({
   return (
     <LayoutContext.Provider value={{
       index: 0,
-      glItemInstance: rootItem,
       layoutManager,
       registerConfig: initializeRoot
     }}>
