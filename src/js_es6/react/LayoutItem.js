@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback, useReducer } from 'react';
 import { getUniqueId } from '../utils/utils';
 import { useParentItemContext, ParentItemContext } from './ParentItemContext';
-import Stack from '../items/Stack';
-import RowOrColumn from '../items/RowOrColumn';
 import { useLayoutContext } from "./ReactLayoutComponent";
 
 export const GL_LAYOUT_ITEM_TYPES = {
@@ -26,9 +24,10 @@ export default function LayoutItem({
   const [ config, ] = useState(
     { type, id: id || getUniqueId() }
   );
-  const { index, registerConfig, parent } = useParentItemContext();
+  const { index, registerConfig, unregisterConfig, parent } = useParentItemContext();
   const [ registered, setRegistered ] = useState(false);
   const [ itemInstance, setItemInstance ] = useState(null);
+  const [ unmounted, setUnmounted ] = useState(false);
   const [ childConfigs, updateChildConfigs ] = useReducer(
     (state, update) => update(state),
     []
@@ -38,24 +37,49 @@ export default function LayoutItem({
    * Registers this component's config with its parent once all children have registered.
    */
   useEffect(function registerConfigWithParent() {
-    if (registered || type === GL_LAYOUT_ITEM_TYPES.ROOT) {
+    if (type === GL_LAYOUT_ITEM_TYPES.ROOT) {
       return;
     }
 
-    const numChildren = React.Children.toArray(children).length;
-    if (childConfigs.length === numChildren) {
-      registerConfig(
-        index,
-        {
-          ...configProps,
-          ...config,
-          content: childConfigs
-        }
-      );
-      setRegistered(true);
+    if (!registered) {
+      const numChildren = React.Children.toArray(children).length;
+      const fullConfig = {
+        ...configProps,
+        ...config,
+        content: childConfigs
+      };
+      const populatedConfigs = childConfigs.filter(cfg => !!cfg);
+      if (populatedConfigs.length === numChildren) {
+        registerConfig(index, fullConfig);
+        setRegistered(true);
+      }
+    }
+  }, [childConfigs, registered, registerConfig]);
+
+  useEffect(function addNewChildDynamically() {
+    if (!registered | !itemInstance) {
+      return;
     }
 
-  }, [childConfigs, registered]);
+    const newConfigs = childConfigs.filter(
+      config => itemInstance.getItemsById(config.id).length <= 0
+    );
+
+    newConfigs.forEach(config => itemInstance.addChild(config, childConfigs.indexOf(config)));
+  }, [registered, childConfigs, itemInstance]);
+
+  useEffect(() => {
+    return () => {
+      if (type !== GL_LAYOUT_ITEM_TYPES.ROOT) {
+        unregisterConfig(config.id);
+        setRegistered(false);
+      }
+    }
+  }, [unregisterConfig]);
+
+  useState(() => {
+    return () => setUnmounted(true);
+  }, []);
 
   /**
    * Initializes the root component.
@@ -71,6 +95,7 @@ export default function LayoutItem({
 
     // Root may only have one child. Once that child is registered, it's time to initialize.
     if (childConfigs.length === 1) {
+      console.log(childConfigs);
       layoutManager.root.addChild(childConfigs[0]);
       setItemInstance(layoutManager.root);
       setRegistered(true);
@@ -90,17 +115,21 @@ export default function LayoutItem({
       return;
     }
 
-    const onParentItemCreated = () => {
-      if (!itemInstance) {
-        setItemInstance(parent.getItemsById(config.id)[0]);
+    const onParentItemCreated = event => {
+      if (!itemInstance && event?.origin?.config.id === id) {
+        setItemInstance(event.origin);
       }
     }
 
-    onParentItemCreated();
+    const existingInstance = parent.getItemsById(id)[0];
+    if (existingInstance) {
+      setItemInstance(existingInstance);
+    }
+
     parent.on('itemCreated', onParentItemCreated);
 
     return () => parent && parent.off('itemCreated', onParentItemCreated);
-  }, [parent, itemInstance]);
+  }, [parent, itemInstance, registered]);
 
   // Config registration function passed to child components.
   const registerChildConfig = useCallback((idx, config) => {
@@ -111,12 +140,32 @@ export default function LayoutItem({
     });
   }, [children]);
 
+  // Allows a child to unregister itself on unmount.
+  // It's important that this callback is only recreated once, when the itemInstance
+  // is set. Otherwise it might trigger child cleanup (see the cleanup function above).
+  const unregisterChildConfig = useCallback((id) => {
+    updateChildConfigs(configs => {
+      return [ ...configs.filter(config => config.id !== id) ];
+    });
+
+    if (!itemInstance) {
+      return;
+    }
+
+    const childInstance = itemInstance.getItemsById(id)[0];
+
+    if (childInstance) {
+      itemInstance.removeChild(childInstance);
+    }
+  }, [itemInstance]);
+
   return (
     React.Children.toArray(children).map((child, idx) => 
       <ParentItemContext.Provider
         key={idx}
         value={{
           registerConfig: registerChildConfig,
+          unregisterConfig: unregisterChildConfig,
           index: idx,
           parent: itemInstance
         }}

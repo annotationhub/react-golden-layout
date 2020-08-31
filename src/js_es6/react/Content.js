@@ -14,10 +14,10 @@ export default function Content({
   isClosable,
   title
 }) {
-  const [ id, ] = useState(idProp || `${key}_${name}_${getUniqueId()}`);
+  const [ id, ] = useState(idProp || `${getUniqueId()}`);
 
   const [ itemInstance, setItemInstance ] = useState();
-  const { registerConfig, index, parent } = useParentItemContext();
+  const { registerConfig, unregisterConfig,  index, parent } = useParentItemContext();
   const layoutManager = useLayoutContext();
 
   const configProps = { width, height, id, isClosable, title };
@@ -25,6 +25,7 @@ export default function Content({
   useEffect(() => {
     // React component is a no-op. Everything is rendered through a react portal.
     layoutManager.registerComponent(id, () => <></>);
+
     registerConfig(
       index,
       {
@@ -34,7 +35,10 @@ export default function Content({
       }
     );
 
-    return () => console.log('cleanup');
+    return () => {
+      unregisterConfig(id);
+      layoutManager.unregisterComponent(id);
+    }
   }, [registerConfig]);
 
   useEffect(() => {
@@ -42,16 +46,20 @@ export default function Content({
       return;
     }
 
-    const findItemInstance = () => {
-      if (!itemInstance) {
-        setItemInstance(parent.getItemsById(id)[0]);
+    const onParentItemCreated = event => {
+      if (!itemInstance && event?.origin?.config.id === id) {
+        setItemInstance(event.origin);
       }
     }
 
-    findItemInstance();
-    parent.on('itemCreated', findItemInstance);
+    const existingInstance = parent.getItemsById(id)[0];
+    if (existingInstance) {
+      setItemInstance(existingInstance);
+    }
 
-    return () => parent && parent.off('itemCreated', findItemInstance);
+    parent.on('itemCreated', onParentItemCreated);
+
+    return () => parent && parent.off('itemCreated', onParentItemCreated);
   }, [parent, itemInstance]);
 
   return (<>
