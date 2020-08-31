@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useContext, useCallback } from "react";
 import LayoutManager from "../LayoutManager";
 import { ParentItemContext } from './ParentItemContext';
+import LayoutItem from './LayoutItem';
 
 const LayoutContext = React.createContext({});
 export const useLayoutContext = () => useContext(LayoutContext);
@@ -35,41 +36,33 @@ export default function ReactLayoutComponent({
     setRootItem(manager.root);
     setLayoutManager(manager);
 
-    const updateSize = () => {};
-    manager.on('itemCreated', updateSize);
-
-    console.log(manager);
-
     return () => {
       manager && manager.destroy();
       setLayoutManager(undefined);
       setRootItem(undefined);
-      manager.off('itemCreated', updateSize);
     }
   }, [containerRef]);
-
-  const addChild = useCallback((idx, config) => {
-    const isLastChild = idx >= (children.length - 1);
-
-    const suspendResize = !initialized && !isLastChild;
-    rootItem.addChild(config, idx, suspendResize);
-
-    if (!initialized && isLastChild) {
-      setInitialized(true);
-    }
-
-    return rootItem.getItemsById(config.id)[0];
-  }, [children, rootItem]);
 
   return (
     <LayoutContext.Provider value={layoutManager}>
       <div ref={containerRef} {...restHtmlAttrs} style={style}>
-        { rootItem && React.Children.toArray(children).map((child, idx) => 
-          <ParentItemContext.Provider key={idx} value={{ addToLayout: addChild, index: idx }}>
-            { child }
+        {
+          rootItem &&
+          <ParentItemContext.Provider value={{ index: 0, glItemInstance: rootItem }}>
+            <LayoutRoot type='root'>
+              { children }
+            </LayoutRoot>
           </ParentItemContext.Provider>
-        ) }
+        }
       </div>
     </LayoutContext.Provider>
   );
+}
+
+function LayoutRoot({ children, ...props }) {
+  return (
+    <LayoutItem type='root' {...props}>
+      { children }
+    </LayoutItem>
+  )
 }

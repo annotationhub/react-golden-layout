@@ -1,7 +1,6 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { getUniqueId } from "../utils/utils";
-import { useContentContext } from "./ItemContentProvider";
 import { useLayoutContext } from "./ReactLayoutComponent";
 import { useParentItemContext } from "./ParentItemContext";
 
@@ -17,9 +16,8 @@ export default function Content({
 }) {
   const [ id, ] = useState(idProp || `${key}_${name}_${getUniqueId()}`);
 
-  const [ config, setConfig ] = useState({ type: 'react-component' });
-  const [ item, setItem ] = useState();
-  const { addToLayout, index } = useParentItemContext();
+  const [ itemInstance, setItemInstance ] = useState();
+  const { registerConfig, index, parent } = useParentItemContext();
   const layoutManager = useLayoutContext();
 
   const configProps = { width, height, id, isClosable, title };
@@ -27,7 +25,7 @@ export default function Content({
   useEffect(() => {
     // React component is a no-op. Everything is rendered through a react portal.
     layoutManager.registerComponent(id, () => <></>);
-    const item = addToLayout(
+    registerConfig(
       index,
       {
         ...configProps,
@@ -36,16 +34,31 @@ export default function Content({
       }
     );
 
-    setItem(item);
-
     return () => console.log('cleanup');
-  }, [addToLayout]);
+  }, [registerConfig]);
+
+  useEffect(() => {
+    if (!parent) {
+      return;
+    }
+
+    const findItemInstance = () => {
+      if (!itemInstance) {
+        setItemInstance(parent.getItemsById(id)[0]);
+      }
+    }
+
+    findItemInstance();
+    parent.on('itemCreated', findItemInstance);
+
+    return () => parent && parent.off('itemCreated', findItemInstance);
+  }, [parent, itemInstance]);
 
   return (<>
     {
-      item && ReactDOM.createPortal(
+      itemInstance && ReactDOM.createPortal(
         <>{children}</>,
-        item.container._contentElement[0]
+        itemInstance.container._contentElement[0]
       )
     }
   </>);

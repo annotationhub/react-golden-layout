@@ -44,9 +44,9 @@ export default class RowOrColumn extends AbstractContentItem {
      * @returns {void}
      */
   addChild(contentItem, index, _$suspendResize) {
-
     var newItemSize, itemSize, i, splitterElement;
 
+    // Dimension is mutated here
     contentItem = this.layoutManager._$normalizeContentItem(contentItem, this);
 
     if (index === undefined) {
@@ -72,11 +72,6 @@ export default class RowOrColumn extends AbstractContentItem {
     }
 
     AbstractContentItem.prototype.addChild.call(this, contentItem, index);
-
-    const weightedSize = this.contentItems.reduce(
-      (size, item) => size + item.config[this._dimension],
-      0
-    );
 
     newItemSize = (1 / this.contentItems.length) * 100;
 

@@ -481,6 +481,7 @@ export default class LayoutManager extends EventEmitter {
     }
 
     contentItem = new this._typeToItem[config.type](this, config, parent);
+
     return contentItem;
   }
 
@@ -814,6 +815,7 @@ export default class LayoutManager extends EventEmitter {
 
     if ($.isPlainObject(contentItemOrConfig) && contentItemOrConfig.type) {
       var newContentItem = this.createContentItem(contentItemOrConfig, parent);
+      // Item Dimensions mutated here.
       newContentItem.callDownwards('_$init');
       return newContentItem;
     } else {

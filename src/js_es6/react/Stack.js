@@ -1,9 +1,9 @@
 import React from 'react';
-import LayoutItem from './LayoutItem';
+import LayoutItem, { GL_LAYOUT_ITEM_TYPES } from './LayoutItem';
 
 export default function Stack({ children, ...props }) {
   return (
-    <LayoutItem type='stack' {...props}>
+    <LayoutItem type={GL_LAYOUT_ITEM_TYPES.STACK} {...props}>
       { children }
     </LayoutItem>
   )
