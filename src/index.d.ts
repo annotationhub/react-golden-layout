@@ -941,6 +941,7 @@ export interface ReactGoldenLayoutProps {
     dimensions?: Dimensions;
     labels?: Labels;
     autoresize?: boolean;
+    debounceResize?: number;
     onLayout?: (layout: GoldenLayout) => unknown;
 }
 
