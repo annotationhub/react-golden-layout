@@ -11,56 +11,57 @@ Example usage:
 import React, { useState } from 'react';
 import '@annotationhub/react-golden-layout/dist/css/goldenlayout-base.css';
 import '@annotationhub/react-golden-layout/dist/css/themes/goldenlayout-dark-theme.css';
-import { GoldenLayoutComponent } from '@annotationhub/react-golden-layout';
-
-function ComponentA() {
-  return <h2>A</h2>;
-}
-
-function ComponentB() {
-  return <h2>B</h2>;
-}
-
-function ComponentC(props: any) {
-  return <h2>{props.myText}</h2>;
-}
+import { ReactGoldenLayout } from '@annotationhub/react-golden-layout';
 
 export default function GoldenTest() {
   const [layoutManager, setLayoutManager] = useState(null);
 
   return (
-    <div style={{ width: '100%', height: '100%' }}>
-      <GoldenLayoutComponent
-        // (Required) Golden Layout Config. (See http://golden-layout.com/docs/Config.html)
-        config={{
-          content: [{
-            type: 'row',
-            content:[{
-              component: ComponentA,
-              title: 'A Component'
-            }, {
-              type: 'column',
-              content:[{
-                component: ComponentB,
-                title: 'B Component'
-              },{
-                component: () => <ComponentC myText="Component with Props" />,
-                title: 'C Component'
-              }]
-            }]
-          }]
-        }}
-        // (Optional) Set up auto-resizing. Layout will resize when the window resizes.
+    <div style= {{ width: '100vw', height: '100vh' }}>
+      <ReactGoldenLayout
+        // (Optional) Defaults to true. Set up auto-resizing. Layout will resize when the window resizes.
         autoresize={true}
-        // (Optional) (Milliseconds) Debounce resize to prevent excessive re-renders.
+        // (Optional) (Milliseconds) Defaults to 50. Debounce resize to prevent excessive re-renders.
         debounceResize={100}
         // (Optional) Grab the instance of the GoldenLayout Manager. Gives you full access to GL API.
-        onLayoutReady={setLayoutManager}
-      />
+        onLayout={setLayoutManager}
+        // (Optional) See http://golden-layout.com/docs/Config.html for all settings.
+        settings: { hasHeaders: true }
+        // (Optional) See http://golden-layout.com/docs/Config.html for all dimensions.
+        dimensions: { borderWidth: 2 }
+        // (Optional) See http://golden-layout.com/docs/Config.html for all label options.
+        labels: { close: 'close' }
+      >
+        <Row
+          // (Optional) Grab the corresponding Golden Layout RowOrColumn instance.
+          onLayoutItem={item => {}}
+          // Any other General config property documented at http://golden-layout.com/docs/ItemConfig.html is valid.
+        >
+          <Content title='Panel 1', width={20}>
+            <h1>Panel 1</h1>
+          </Content>
+          <Column width={80}>
+            <Stack height={35}>
+              {/* Be sure to your custom components in a <Content> component. */}
+              <Content title='Panel 2'>
+                <h1>Stack Panel 2</h1>
+              </Content>
+              <Content title='Panel 3'>
+                <h1>Stack Panel 2</h1>
+              </Content>
+            </Stack>
+            <Content height={65} title='Panel 4'>
+              <h1>Panel 4</h1>
+            </Content>
+          </Column>
+        </Row>
+      </ReactGoldenLayout>
     </div>
   );
 }
 ```
+
+
 
 ## Features
 

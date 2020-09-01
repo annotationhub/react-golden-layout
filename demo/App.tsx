@@ -8,25 +8,27 @@ const { Row, Column, Stack, Content } = ReactGoldenLayout;
 
 export default function GoldenTest() {
   return (
-    <ReactGoldenLayout htmlAttrs={{ style: { width: '100vw', height: '100vh' } }}>
-      <Row>
-        <Content width={20} title='Panel 1'>
-          <h1>Panel 1</h1>
-        </Content>
-        <Column width={80}>
-          <Row>
-            <Content width={25} title='Panel 2'>
-              <h1>Panel 2</h1>
-            </Content>
-            <Content height={75} title='Panel 3'>
-              <h1>Panel 3</h1>
-            </Content>
-          </Row>
-          <Content width={25} title='Panel 4'>
-            <h1>Panel 4</h1>
+    <div style= {{ width: '100vw', height: '100vh' }}>
+      <ReactGoldenLayout>
+        <Row>
+          <Content width={20} title='Panel 1'>
+            <h1>Panel 1</h1>
           </Content>
-        </Column>
-      </Row>
-    </ReactGoldenLayout>
+          <Column width={80}>
+            <Stack height={35}>
+              <Content title='Panel 2'>
+                <h1>Stack Panel 2</h1>
+              </Content>
+              <Content title='Panel 3'>
+                <h1>Stack Panel 2</h1>
+              </Content>
+            </Stack>
+            <Content height={65} title='Panel 4'>
+              <h1>Panel 4</h1>
+            </Content>
+          </Column>
+        </Row>
+      </ReactGoldenLayout>
+    </div>
   );
 }
