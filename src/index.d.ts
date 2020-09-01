@@ -940,13 +940,16 @@ export interface ReactGoldenLayoutProps {
     settings?: Settings;
     dimensions?: Dimensions;
     labels?: Labels;
-    onLayoutReady?: (layout: GoldenLayout) => unknown;
+    autoresize?: boolean;
+    onLayout?: (layout: GoldenLayout) => unknown;
 }
 
 export class ReactGoldenLayout
     extends React.Component<ReactGoldenLayoutProps> {}
 
-export type LayoutItemProps = Pick<ItemConfig, 'width' | 'height' | 'id' | 'isClosable' | 'title'>;
+export type LayoutItemProps = Pick<ItemConfig, 'width' | 'height' | 'id' | 'isClosable' | 'title'> & {
+    onLayoutItem?: (item: ContentItem) => unknown;
+};
 
 export namespace ReactGoldenLayout {
     export class Row extends React.Component<LayoutItemProps> {}

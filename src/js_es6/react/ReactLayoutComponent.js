@@ -1,20 +1,22 @@
-import React, { useRef, useState, useEffect, useContext, useCallback } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import LayoutManager from "../LayoutManager";
-import { ParentItemContext } from './ParentItemContext';
-import LayoutItem, { LayoutItemNew } from './LayoutItem';
-import { LayoutContext } from './LayoutContext';
+import { LayoutContext } from "./LayoutContext";
+import LayoutItem from "./LayoutItem";
+import PropTypes from "prop-types";
 
 export default function ReactLayoutComponent({
   htmlAttrs,
   settings,
   dimensions,
   labels,
-  children
+  children,
+  onLayout,
+  autoresize = true,
+  debounceResize = 50,
 }) {
   const containerRef = useRef();
   const [ layoutManager, setLayoutManager ] = useState();
   const [ rootItem, setRootItem ] = useState();
-  const [ initialized, setInitialized ] = useState(true);
 
   // Default to filling parent container.
   let { style, ...restHtmlAttrs } = htmlAttrs || {};
@@ -24,8 +26,9 @@ export default function ReactLayoutComponent({
     ...(style || {})
   };
 
+  // Initialize layout
   useEffect(() => {
-    let manager = new LayoutManager(
+    const manager = new LayoutManager(
       { settings, dimensions, labels, content: [] },
       containerRef.current
     );
@@ -35,15 +38,47 @@ export default function ReactLayoutComponent({
     setLayoutManager(manager);
 
     return () => {
-      manager && manager.destroy();
+      manager.destroy();
       setLayoutManager(undefined);
       setRootItem(undefined);
     }
   }, [containerRef]);
 
-  function initializeRoot(rootConfig) {
+  // Call onLayout when layout has been created
+  useEffect(() => {
+    if (onLayout && layoutManager) {
+      onLayout(layoutManager)
+    }
+  }, [layoutManager, onLayout]);
+
+  // Autoresize
+  useEffect(() => {
+    if (!autoresize) {
+      return;
+    }
+
+    let resizeTimer;
+    const resize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (layoutManager) {
+          layoutManager.updateSize();
+        }
+      }, debounceResize);
+    }
+
+    window.addEventListener('resize', resize);
+
+    return () => window.removeEventListener('resize', resize);
+  }, [autoresize, debounceResize, layoutManager]);
+
+  /**
+   * Registers the root config by adding the root content to the root.
+   * This is the final step in initialization, which results in first render of all layout children.
+   * @param {*} rootConfig
+   */
+  function registerRootConfig(rootConfig) {
     // Root config may only have one child item.
-    console.log(rootConfig.content);
     rootItem.addChild(rootConfig.content[0]);
   }
 
@@ -51,7 +86,7 @@ export default function ReactLayoutComponent({
     <LayoutContext.Provider value={{
       index: 0,
       layoutManager,
-      registerConfig: initializeRoot
+      registerConfig: registerRootConfig
     }}>
       <div ref={containerRef} {...restHtmlAttrs} style={style}>
         {
@@ -67,8 +102,42 @@ export default function ReactLayoutComponent({
 
 function LayoutRoot({ children, ...props }) {
   return (
-    <LayoutItemNew type='root' {...props}>
+    <LayoutItem type='root' {...props}>
       { children }
-    </LayoutItemNew>
+    </LayoutItem>
   )
 }
+
+ReactLayoutComponent.propTypes = {
+  // Custom Props
+  onLayoutReady: PropTypes.func,
+  autosize: PropTypes.bool,
+
+  // GL props
+  settings: PropTypes.shape({
+    hasHeaders: PropTypes.bool,
+    constrainDragToContainer: PropTypes.bool,
+    reorderEnabled: PropTypes.bool,
+    selectionEnabled: PropTypes.bool,
+    popoutWholeStack: PropTypes.bool,
+    blockedPopoutsThrowError: PropTypes.bool,
+    closePopoutsOnUnload: PropTypes.bool,
+    showPopoutIcon: PropTypes.bool,
+    showMaximiseIcon: PropTypes.bool,
+    showCloseIcon: PropTypes.bool
+  }),
+  dimensions: PropTypes.shape({
+    borderWidth: PropTypes.number,
+    minItemHeight: PropTypes.number,
+    minItemWidth: PropTypes.number,
+    headerHeight: PropTypes.number,
+    dragProxyWidth: PropTypes.number,
+    dragProxyHeight: PropTypes.number,
+  }),
+  labels: PropTypes.shape({
+    close: PropTypes.string,
+    maximise: PropTypes.string,
+    minimise: PropTypes.string,
+    popout: PropTypes.string,
+  })
+};
