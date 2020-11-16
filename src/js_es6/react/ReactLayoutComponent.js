@@ -82,16 +82,13 @@ export default function ReactLayoutComponent({
     rootItem.addChild(rootConfig.content[0]);
   }
 
-  function unregisterRootConfig(id) {
-    rootItem?.removeChild(id);
-  }
-
   return (
     <LayoutContext.Provider value={{
       index: 0,
       layoutManager,
       registerConfig: registerRootConfig,
-      unregister: unregisterRootConfig
+      // Root is only unregistered when we're about to be unmounted an destroyed.
+      unregister: () => {}
     }}>
       <div ref={containerRef} {...restHtmlAttrs} style={style}>
         {
