@@ -33,13 +33,17 @@ export default function GoldenTest() {
            {/* Always wrap all <Content> components in <Stack> components. */}
           <Stack>
             {/* Be sure to your custom components in a <Content> component. */}
-            <Content title='Panel 1' width={20}>
+            <Content
+              title='Panel 1'
+              width={20}
+              // Called when user manually closes this component.
+              onUserClosed={() => console.log('Panel 1 closed!')}
+            >
               <h1>Panel 1</h1>
             </Content>
           </Stack>
           <Column width={80}>
             <Stack height={35}>
-              
               <Content title='Panel 2'>
                 <h1>Stack Panel 2</h1>
               </Content>

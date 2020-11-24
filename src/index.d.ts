@@ -950,6 +950,7 @@ export class ReactGoldenLayout
 
 export type LayoutItemProps = Pick<ItemConfig, 'width' | 'height' | 'id' | 'isClosable' | 'title'> & {
     onLayoutItem?: (item: ContentItem) => unknown;
+    onUserClosed?: (item: ContentItem) => unknown;
 };
 
 export namespace ReactGoldenLayout {
