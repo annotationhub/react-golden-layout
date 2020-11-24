@@ -83,7 +83,7 @@ export default class LayoutItem extends React.Component {
   registerChild(childConfig, idx) {
     this.validateChildConfig(childConfig);
     if (this.state.registered) {
-      this.state.itemInstance.addChild(childConfig, idx);
+      this.state.itemInstance.addChild({ ...childConfig }, idx);
     }
 
     this.setState(prev => {

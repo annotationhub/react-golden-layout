@@ -73,7 +73,9 @@ export default class RowOrColumn extends AbstractContentItem {
 
     AbstractContentItem.prototype.addChild.call(this, contentItem, index);
 
-    newItemSize = (1 / this.contentItems.length) * 100;
+    newItemSize = typeof contentItem.config[this._dimension] === 'number' ?
+      contentItem.config[this._dimension] :
+      (1 / this.contentItems.length) * 100;
 
     if (_$suspendResize === true) {
       this.emitBubblingEvent('stateChanged');
