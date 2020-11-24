@@ -7,7 +7,8 @@ export const GL_LAYOUT_ITEM_TYPES = {
   ROOT: 'root',
   ROW: 'row',
   COLUMN: 'column',
-  STACK: 'stack'
+  STACK: 'stack',
+  COMPONENT: 'react-component'
 };
 
 export default class LayoutItem extends React.Component {
@@ -71,6 +72,7 @@ export default class LayoutItem extends React.Component {
    * @param {*} idx 
    */
   registerChild(childConfig, idx) {
+    this.validateChildConfig(childConfig);
     if (this.state.registered) {
       this.state.itemInstance.addChild(childConfig, idx);
     }
@@ -116,6 +118,12 @@ export default class LayoutItem extends React.Component {
         }
       }
     });
+  }
+
+  validateChildConfig(childConfig) {
+    if (this.props.type != GL_LAYOUT_ITEM_TYPES.STACK && childConfig.type === GL_LAYOUT_ITEM_TYPES.COMPONENT) {
+      throw new Error(StackValidationError(this.props.type));
+    }
   }
 
   componentDidUpdate() {
@@ -202,3 +210,19 @@ LayoutItem.propTypes = {
     PropTypes.string
   ])
 };
+
+const StackValidationError = (componentType = '') => (
+` <Content> component cannot be a direct child of a <${componentType.slice(0, 1).toUpperCase()}${componentType.slice(1)}> component.
+
+All <Content> elements must be wrapped in <Stack> components.
+This is required to match the layout hierarchy GoldenLayout implicitly creates and allows react components to stay in sync with GoldenLayout.
+
+Please update your component structure to match the below:
+<${componentType.slice(0, 1).toUpperCase()}${componentType.slice(1)}>
+  <Stack>
+    <Content>
+      { /* Content Children */ }
+    <Content>
+  </Stack>
+</${componentType.slice(0, 1).toUpperCase()}${componentType.slice(1)}>
+`)

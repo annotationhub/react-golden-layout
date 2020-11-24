@@ -26,23 +26,27 @@ export default function GoldenTest() {
         // (Optional) Grab the instance of the GoldenLayout Manager. Gives you full access to GL API.
         onLayout={setLayoutManager}
         // (Optional) See http://golden-layout.com/docs/Config.html for all settings.
-        settings: { hasHeaders: true }
+        settings={{ hasHeaders: true }}
         // (Optional) See http://golden-layout.com/docs/Config.html for all dimensions.
-        dimensions: { borderWidth: 2 }
+        dimensions={{ borderWidth: 2 }}
         // (Optional) See http://golden-layout.com/docs/Config.html for all label options.
-        labels: { close: 'close' }
+        labels={{ close: 'close' }}
       >
         <Row
           // (Optional) Grab the corresponding Golden Layout RowOrColumn instance.
           onLayoutItem={item => {}}
           // Any other General config property documented at http://golden-layout.com/docs/ItemConfig.html is valid.
         >
-          <Content title='Panel 1', width={20}>
-            <h1>Panel 1</h1>
-          </Content>
+          {/* Always wrap all <Content> components in <Stack> components. */}
+          <Stack>
+            {/* Be sure to your custom components in a <Content> component. */}
+            <Content title='Panel 1' width={20}>
+              <h1>Panel 1</h1>
+            </Content>
+          </Stack>
           <Column width={80}>
             <Stack height={35}>
-              {/* Be sure to your custom components in a <Content> component. */}
+              
               <Content title='Panel 2'>
                 <h1>Stack Panel 2</h1>
               </Content>
@@ -50,9 +54,11 @@ export default function GoldenTest() {
                 <h1>Stack Panel 2</h1>
               </Content>
             </Stack>
-            <Content height={65} title='Panel 4'>
-              <h1>Panel 4</h1>
-            </Content>
+            <Stack>
+              <Content height={65} title='Panel 4'>
+                <h1>Panel 4</h1>
+              </Content>
+            </Stack>
           </Column>
         </Row>
       </ReactGoldenLayout>
