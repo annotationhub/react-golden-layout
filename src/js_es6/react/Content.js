@@ -28,16 +28,17 @@ export default class Content extends React.Component {
   }
 
   componentDidMount() {
+    this._setupEventListeners();
+
     const { layoutManager, registerConfig, index } = this.context;
 
     layoutManager.registerComponent(this.state.id, () => <></>);
     registerConfig(this.state.config, index);
-
-    this._setupEventListeners();
   }
 
   componentWillUnmount() {
     this._removeEventListeners();
+    this.context.layoutManager.unregisterComponent(this.state.id);
     this.context.unregister(this.state.id);
   }
 
@@ -65,14 +66,14 @@ export default class Content extends React.Component {
     const { itemInstance } = this.state;
     const { children } = this.props;
 
-    return (<>
-      {
-        itemInstance && ReactDOM.createPortal(
-          <>{children}</>,
-          itemInstance.container._contentElement[0]
-        )
-      }
-    </>);
+    if (!itemInstance) {
+      return null;
+    }
+
+    return ReactDOM.createPortal(
+      children,
+      itemInstance.container._contentElement[0]
+    );
   }
 }
 
