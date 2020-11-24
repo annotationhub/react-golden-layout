@@ -297,15 +297,17 @@ export default class Header extends EventEmitter {
     /**
          * Popout control to launch component in new window.
          */
-    if (this._getHeaderSetting('popout')) {
-      popout = fnBind(this._onPopoutClick, this);
-      label = this._getHeaderSetting('popout');
-      new HeaderButton(this, label, 'lm_popout', popout);
-    }
+    // **** Disabled for react-golden-layout ****/
+    // if (this._getHeaderSetting('popout')) {
+    //   popout = fnBind(this._onPopoutClick, this);
+    //   label = this._getHeaderSetting('popout');
+    //   new HeaderButton(this, label, 'lm_popout', popout);
+    // }
 
     /**
          * Maximise control - set the component to the full size of the layout
          */
+    // **** (Temporarily) Disabled for react-golden-layout ****/
     if (this._getHeaderSetting('maximise')) {
       maximise = fnBind(this.parent.toggleMaximise, this.parent);
       maximiseLabel = this._getHeaderSetting('maximise');
@@ -325,7 +327,12 @@ export default class Header extends EventEmitter {
          * Close button
          */
     if (this._isClosable()) {
-      closeStack = fnBind(this.parent.remove, this.parent);
+      // @annotationhub/react-golden-layout change:
+      // If the parent contentItem passes a "onUserClose" pass control of closing the component to
+      // the parent.
+      const closeStack = this.parent.config.onUserClosed ?
+        () => this.parent.config.onUserClosed(this.parent) :
+        fnBind(this.parent.remove, this.parent);
       label = this._getHeaderSetting('close');
       this.closeButton = new HeaderButton(this, label, 'lm_close', closeStack);
     }

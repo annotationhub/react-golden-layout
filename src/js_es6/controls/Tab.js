@@ -174,7 +174,12 @@ export default class Tab {
     event.stopPropagation();
     if (!this.header._canDestroy)
       return;
-    this.header.parent.removeChild(this.contentItem);
+
+    if (this.contentItem.config.onUserClosed) {
+      this.contentItem.config.onUserClosed(this.contentItem);
+    } else {
+      this.header.parent.removeChild(this.contentItem);
+    }
   }
 
   /**

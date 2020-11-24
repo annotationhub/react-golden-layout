@@ -22,7 +22,8 @@ export default class Content extends React.Component {
         id,
         type: 'react-component',
         component: id,
-        content: []
+        content: [],
+        onUserClosed: props.onUserClosed || undefined
       }
     };
   }
@@ -55,12 +56,10 @@ export default class Content extends React.Component {
     const { layoutManager } = this.context;
 
     layoutManager.on('itemCreated', this._setGoldenLayoutItemInstance);
-    layoutManager.on('itemDestroyed', this._onItemDestroyed);
   }
 
   _removeEventListeners() {
     this.context.layoutManager.off('itemCreated', this._setGoldenLayoutItemInstance);
-    this.context.layoutManager.off('itemDestroyed', this._onItemDestroyed);
   }
 
   _setGoldenLayoutItemInstance = (item) => {
@@ -70,12 +69,6 @@ export default class Content extends React.Component {
       if (this.props.onLayoutItem) {
         this.props.onLayoutItem(item);
       }
-    }
-  }
-
-  _onItemDestroyed = (item) => {
-    if (this.props.onUserClosed && item === this.state.itemInstance) {
-      this.props.onUserClosed(item);
     }
   }
 
