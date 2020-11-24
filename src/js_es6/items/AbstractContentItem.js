@@ -144,12 +144,6 @@ export default class AbstractContentItem extends EventEmitter {
          */
     if (this.contentItems.length > 0) {
       this.callDownwards('setSize');
-
-      /**
-             * If this was the last content item, remove this node as well
-             */
-    } else if (!(this instanceof Root) && this.config.isClosable === true) {
-      this.parent.removeChild(this);
     }
   }
 

@@ -38,6 +38,7 @@ export default class Content extends React.Component {
 
   componentWillUnmount() {
     this._removeEventListeners();
+    this.context.unregister(this.state.id);
   }
 
   _setupEventListeners() {

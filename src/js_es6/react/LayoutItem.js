@@ -44,6 +44,15 @@ export default class LayoutItem extends React.Component {
   componentWillUnmount() {
     this._removeEventListeners();
     this.context.unregister(this.state.id);
+    this.setState({ itemInstance: null, registered: false });
+  }
+
+  /**
+   * Returns a content item with the passed id from the layout manager, if it exists.
+   * @param {*} id
+   */
+  findLayoutItem(id) {
+    return this.context.layoutManager.root.getItemsById(id)[0];
   }
 
   /**
@@ -87,7 +96,7 @@ export default class LayoutItem extends React.Component {
    */
   unregisterChild(id) {
     if (this.state.registered) {
-      const foundInstance = this.context.layoutManager.root.getItemsById(id)[0];
+      const foundInstance = this.findLayoutItem(id);
       if (foundInstance) {
         foundInstance.parent.removeChild(foundInstance);
       }
