@@ -213,6 +213,7 @@ export default class Header extends EventEmitter {
      */
   _$setClosable(isClosable) {
     this._canDestroy = isClosable || this.tabs.length > 1;
+
     if (this.closeButton && this._isClosable()) {
       this.closeButton.element[isClosable ? "show" : "hide"]();
       return true;
@@ -330,9 +331,7 @@ export default class Header extends EventEmitter {
       // @annotationhub/react-golden-layout change:
       // If the parent contentItem passes a "onUserClose" pass control of closing the component to
       // the parent.
-      const closeStack = this.parent.config.onUserClosed ?
-        () => this.parent.config.onUserClosed(this.parent) :
-        fnBind(this.parent.remove, this.parent);
+      const closeStack = fnBind(this.parent.remove, this.parent);
       label = this._getHeaderSetting('close');
       this.closeButton = new HeaderButton(this, label, 'lm_close', closeStack);
     }

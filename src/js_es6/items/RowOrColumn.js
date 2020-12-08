@@ -91,16 +91,9 @@ export default class RowOrColumn extends AbstractContentItem {
       }
     }
 
-    if (this.contentItems.length === 1 && this.config.isClosable === true) {
-      childItem = this.contentItems[0];
-      this.contentItems = [];
-      this.parent.replaceChild(this, childItem, true);
-      this._validateDocking(this.parent);
-    } else {
-      this.callDownwards('setSize');
-      this.emitBubblingEvent('stateChanged');
-      this._validateDocking();
-    }
+    this.callDownwards('setSize');
+    this.emitBubblingEvent('stateChanged');
+    this._validateDocking();
   }
 
 
@@ -202,9 +195,16 @@ export default class RowOrColumn extends AbstractContentItem {
 
     AbstractContentItem.prototype.removeChild.call(this, contentItem, keepChild);
 
-    this.callDownwards('setSize');
-    this.emitBubblingEvent('stateChanged');
-    this._validateDocking();
+    if (this.contentItems.length === 1 && this.config.isClosable === true) {
+      childItem = this.contentItems[0];
+      this.contentItems = [];
+      this.parent.replaceChild(this, childItem, true);
+      this._validateDocking(this.parent);
+    } else {
+      this.callDownwards('setSize');
+      this.emitBubblingEvent('stateChanged');
+      this._validateDocking();
+    }
   }
 
   /**
@@ -647,7 +647,7 @@ export default class RowOrColumn extends AbstractContentItem {
      */
   _validateDocking(that) {
     that = that || this;
-    var can = that.contentItems.length - that._isDocked() > 1;
+    var can = that.contentItems.length - that._isDocked() > 0;
     for (var i = 0; i < that.contentItems.length; ++i)
       if (that.contentItems[i] instanceof Stack) {
         that.contentItems[i].header._setDockable(that._isDocked(i) || can);

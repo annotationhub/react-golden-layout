@@ -147,7 +147,7 @@ export default class AbstractContentItem extends EventEmitter {
     /**
      * If this was the last content item, remove this node as well
      */
-    } else if (!(this instanceof Root) && !(this instanceof Component) && this.config.isClosable === true) {
+    } else if (!(this instanceof Root) && this.config.isClosable === true) {
       this.parent.removeChild(this);
     }
   }

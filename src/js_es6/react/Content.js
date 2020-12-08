@@ -11,7 +11,12 @@ export default class Content extends React.Component {
     super(props);
 
     const { width, height, isClosable, title } = props;
-    const configProps = { width, height, isClosable, title };
+    const configProps = {
+      width,
+      height,
+      isClosable: typeof isClosable === 'boolean' ? isClosable : true,
+      title
+    };
     const id = props.id || getUniqueId();
 
     this.state = {
@@ -23,7 +28,6 @@ export default class Content extends React.Component {
         type: 'react-component',
         component: id,
         content: [],
-        onUserClosed: props.onUserClosed || undefined
       }
     };
   }
