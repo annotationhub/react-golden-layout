@@ -38,14 +38,11 @@ export default function GoldenTest() {
           // Any other General config property documented at http://golden-layout.com/docs/ItemConfig.html is valid.
         >
            {/* Always wrap all <Content> components in <Stack> components. */}
-          <Stack onUserClosed={stack => window.alert('User wants to close this Stack!')}>
+          <Stack>
             {/* Be sure to your custom components in a <Content> component. */}
             <Content
               title='Panel 1'
               width={20}
-              // Passing a function to "onUserClosed()" allows you to control of closing components.
-              // When a user clicks
-              onUserClosed={content => window.alert('User wants to close Panel 1!')}
             >
               <h1>Panel 1</h1>
             </Content>
