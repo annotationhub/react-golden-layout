@@ -44,15 +44,6 @@ export default class LayoutItem extends React.Component {
   }
 
   componentWillUnmount() {
-    // It is important that event listeners are removed first, because it results in an implicit, but
-    // important behavior. A component may be removed by multiple means:
-    // 1. Removed from React Tree
-    // 2. User closes the element by clicking "X"
-    // 3. Removed through the GL API
-    // In case #1, we don't want to emit to the "onUserClosed" prop, which relies on the GL events.
-    // So, if this component is removed from the react tree, remove event listeners first so
-    // that event does not call the prop. It is still called in case #3, which is not ideal, but
-    // unavoidable at the moment.
     this._removeEventListeners();
     this.context.unregister(this.state.id);
     this.setState({ itemInstance: null, registered: false });
@@ -215,7 +206,6 @@ LayoutItem.propTypes = {
   height: PropTypes.number,
   isClosable: PropTypes.bool,
   title: PropTypes.string,
-  onUserClosed: PropTypes.func,
   id: PropTypes.oneOfType([
     PropTypes.number,
     PropTypes.string
