@@ -91,9 +91,16 @@ export default class RowOrColumn extends AbstractContentItem {
       }
     }
 
-    this.callDownwards('setSize');
-    this.emitBubblingEvent('stateChanged');
-    this._validateDocking();
+    if (this.contentItems.length === 1 && this.config.isClosable === true) {
+      childItem = this.contentItems[0];
+      this.contentItems = [];
+      this.parent.replaceChild(this, childItem, true);
+      this._validateDocking(this.parent);
+    } else {
+      this.callDownwards('setSize');
+      this.emitBubblingEvent('stateChanged');
+      this._validateDocking();
+    }
   }
 
 

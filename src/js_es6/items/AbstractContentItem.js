@@ -109,13 +109,13 @@ export default class AbstractContentItem extends EventEmitter {
      */
   removeChild(contentItem, keepChild) {
     /*
-         * Get the position of the item that's to be removed within all content items this node contains
-         */
+    * Get the position of the item that's to be removed within all content items this node contains
+    */
     var index = indexOf(contentItem, this.contentItems);
 
     /*
-         * Make sure the content item to be removed is actually a child of this item
-         */
+    * Make sure the content item to be removed is actually a child of this item
+    */
     if (index === -1) {
       throw new Error('Can\'t remove child item. Unknown content item');
     }
@@ -130,20 +130,25 @@ export default class AbstractContentItem extends EventEmitter {
     }
 
     /**
-         * Remove the content item from this nodes array of children
-         */
+     * Remove the content item from this nodes array of children
+     */
     this.contentItems.splice(index, 1);
 
     /**
-         * Remove the item from the configuration
-         */
+     * Remove the item from the configuration
+     */
     this.config.content.splice(index, 1);
 
     /**
-         * If this node still contains other content items, adjust their size
-         */
+     * If this node still contains other content items, adjust their size
+     */
     if (this.contentItems.length > 0) {
       this.callDownwards('setSize');
+    /**
+     * If this was the last content item, remove this node as well
+     */
+    } else if (!(this instanceof Root) && !(this instanceof Component) && this.config.isClosable === true) {
+      this.parent.removeChild(this);
     }
   }
 
