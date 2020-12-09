@@ -647,7 +647,7 @@ export default class RowOrColumn extends AbstractContentItem {
      */
   _validateDocking(that) {
     that = that || this;
-    var can = that.contentItems.length - that._isDocked() > 0;
+    var can = that.contentItems.length - that._isDocked() > 1;
     for (var i = 0; i < that.contentItems.length; ++i)
       if (that.contentItems[i] instanceof Stack) {
         that.contentItems[i].header._setDockable(that._isDocked(i) || can);

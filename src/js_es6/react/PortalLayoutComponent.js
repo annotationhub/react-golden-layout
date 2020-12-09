@@ -4,7 +4,7 @@ import { LayoutContext } from "./LayoutContext";
 import LayoutItem from "./LayoutItem";
 import PropTypes from "prop-types";
 
-export default function ReactLayoutComponent({
+export default function PortalLayoutComponent({
   htmlAttrs,
   settings,
   dimensions,
@@ -17,7 +17,6 @@ export default function ReactLayoutComponent({
 }) {
   const containerRef = useRef();
   const [ layoutManager, setLayoutManager ] = useState();
-  const [ rootItem, setRootItem ] = useState();
 
   // Default to filling parent container.
   let { style, ...restHtmlAttrs } = htmlAttrs || {};
@@ -27,8 +26,6 @@ export default function ReactLayoutComponent({
     ...(style || {})
   };
 
-  console.log('here');
-
   // Initialize layout
   useEffect(() => {
     const manager = new LayoutManager(
@@ -37,13 +34,11 @@ export default function ReactLayoutComponent({
     );
 
     manager.init();
-    setRootItem(manager.root);
     setLayoutManager(manager);
 
     return () => {
       manager.destroy();
       setLayoutManager(undefined);
-      setRootItem(undefined);
     }
   }, [containerRef]);
 
@@ -75,45 +70,21 @@ export default function ReactLayoutComponent({
     return () => window.removeEventListener('resize', resize);
   }, [autoresize, debounceResize, layoutManager]);
 
-  /**
-   * Registers the root config by adding the root content to the root.
-   * This is the final step in initialization, which results in first render of all layout children.
-   * @param {*} rootConfig
-   */
-  function registerRootConfig(rootConfig) {
-    // Root config may only have one child item.
-    rootItem.addChild(rootConfig.content[0]);
-  }
-
   return (
     <LayoutContext.Provider value={{
       index: 0,
       layoutManager,
-      registerConfig: registerRootConfig,
-      // Root is only unregistered when we're about to be unmounted an destroyed.
+      registerConfig: () => {},
       unregister: () => {}
     }}>
       <div ref={containerRef} {...restHtmlAttrs} style={style}>
-        {
-          rootItem &&
-            <LayoutRoot type='root'>
-              { children }
-            </LayoutRoot>
-        }
+        { layoutManager && children }
       </div>
     </LayoutContext.Provider>
   );
 }
 
-function LayoutRoot({ children, ...props }) {
-  return (
-    <LayoutItem type='root' {...props}>
-      { children }
-    </LayoutItem>
-  )
-}
-
-ReactLayoutComponent.propTypes = {
+PortalLayoutComponent.propTypes = {
   // Custom Props
   onLayoutReady: PropTypes.func,
   autosize: PropTypes.bool,

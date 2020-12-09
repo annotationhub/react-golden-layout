@@ -54,6 +54,7 @@ export default class AbstractContentItem extends EventEmitter {
     this.isColumn = false;
     this.isStack = false;
     this.isComponent = false;
+    this.isDestroyed = false;
 
     this.layoutManager = layoutManager;
     this._pendingEventPropagations = {};
@@ -125,6 +126,7 @@ export default class AbstractContentItem extends EventEmitter {
 		 * Then use 'callDownwards' to destroy any children
 		 */
     if (keepChild !== true) {
+      const item = this.contentItems[index];
       this.contentItems[index]._$destroy();
       this.contentItems[index].callDownwards('_$destroy', [], true, true);
     }
@@ -494,6 +496,7 @@ export default class AbstractContentItem extends EventEmitter {
      * @returns {void}
      */
   _$destroy() {
+    this.isDestroyed = true;
     this.emitBubblingEvent('beforeItemDestroyed');
     this.element.remove();
     this.emitBubblingEvent('itemDestroyed');

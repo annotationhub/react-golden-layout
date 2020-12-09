@@ -2,16 +2,19 @@ import React, { useState } from 'react';
 import '../src/less/goldenlayout-base.less';
 import '../src/less/themes/goldenlayout-dark-theme.less';
 import './demo.less';
-import { ReactGoldenLayout } from '../src';
-
-const { Row, Column, Stack, Content } = ReactGoldenLayout;
+import { PortalLayoutComponent, PortalContent, Content } from '../src';
 
 export default function GoldenTest() {
   const [layoutManager, setLayoutManager] = useState(null);
 
+  const [ test1, setTest1 ] = useState(true);
+  const [ test2, setTest2 ] = useState(true);
+
+  (window as any).layoutManager = layoutManager;
+
   return (
     <div style= {{ width: '100vw', height: '100vh' }}>
-      <ReactGoldenLayout
+      <PortalLayoutComponent
         // (Optional) Defaults to true. Set up auto-resizing. Layout will resize when the window resizes.
         autoresize={true}
         // (Optional) (Milliseconds) Defaults to 50. Debounce resize to prevent excessive re-renders.
@@ -20,43 +23,31 @@ export default function GoldenTest() {
         onLayout={setLayoutManager}
         // (Optional) See http://golden-layout.com/docs/Config.html for all settings.
         settings={{ hasHeaders: true }}
+        content={[{
+          type: 'row',
+          id: 'test',
+          content: []
+        }]}
         // (Optional) See http://golden-layout.com/docs/Config.html for all dimensions.
         dimensions={{ borderWidth: 2 }}
         // (Optional) See http://golden-layout.com/docs/Config.html for all label options.
         labels={{ close: 'close' }}
       >
-        <Row
-          // (Optional) Grab the corresponding Golden Layout RowOrColumn instance.
-          onLayoutItem={item => {}}
-          // Any other General config property documented at http://golden-layout.com/docs/ItemConfig.html is valid.
+        <PortalContent
+          containerId={'test'}
         >
-           {/* Always wrap all <Content> components in <Stack> components. */}
-          <Stack>
-            {/* Be sure to your custom components in a <Content> component. */}
-            <Content
-              title='Panel 1'
-              width={20}
-            >
-              <h1>Panel 1</h1>
+          { test1 && (
+            <Content onClosed={() => setTest1(false)}>
+              <h1>Test Panel 1</h1>
             </Content>
-          </Stack>
-          <Column width={80}>
-            <Stack height={35}>
-              <Content title='Panel 2'>
-                <h1>Stack Panel 2</h1>
-              </Content>
-              <Content title='Panel 3'>
-                <h1>Stack Panel 2</h1>
-              </Content>
-            </Stack>
-            <Stack>
-              <Content height={65} title='Panel 4'>
-                <h1>Panel 4</h1>
-              </Content>
-            </Stack>
-          </Column>
-        </Row>
-      </ReactGoldenLayout>
+          )}
+          { test2 && (
+            <Content onClosed={() => setTest2(false)}>
+              <h1>Test Panel 2</h1>
+            </Content>
+          )}
+        </PortalContent>
+      </PortalLayoutComponent>
     </div>
   );
 }

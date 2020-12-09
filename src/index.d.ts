@@ -938,6 +938,7 @@ export class GoldenLayoutComponent extends React.Component<
 export interface ReactGoldenLayoutProps {
     htmlAttrs?: { [prop: string]: any };
     settings?: Settings;
+    content?: ItemConfigType[];
     dimensions?: Dimensions;
     labels?: Labels;
     autoresize?: boolean;
@@ -948,6 +949,12 @@ export interface ReactGoldenLayoutProps {
 export class ReactGoldenLayout
     extends React.Component<ReactGoldenLayoutProps> {}
 
+export class PortalLayoutComponent
+    extends React.Component<ReactGoldenLayoutProps> {}
+
+export class PortalContent extends React.Component<LayoutItemProps & { containerId: string | number }> {}
+export class Content extends React.Component<LayoutItemProps & { onClosed: any }> {}
+
 export type LayoutItemProps = Pick<ItemConfig, 'width' | 'height' | 'id' | 'isClosable' | 'title'> & {
     onLayoutItem?: (item: ContentItem) => unknown;
 };
@@ -956,5 +963,5 @@ export namespace ReactGoldenLayout {
     export class Row extends React.Component<LayoutItemProps> {}
     export class Column extends React.Component<LayoutItemProps> {}
     export class Stack extends React.Component<LayoutItemProps> {}
-    export class Content extends React.Component<LayoutItemProps> {}
+    export class Content extends React.Component<LayoutItemProps & { onClosed: any }> {}
 }

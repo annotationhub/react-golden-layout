@@ -22,6 +22,7 @@ export default class Content extends React.Component {
     this.state = {
       id,
       itemInstance: null,
+      registered: false,
       config: {
         ...configProps,
         id,
@@ -34,11 +35,11 @@ export default class Content extends React.Component {
 
   componentDidMount() {
     this._setupEventListeners();
+    this._registerIfRequired();
+  }
 
-    const { layoutManager, registerConfig, index } = this.context;
-
-    layoutManager.registerComponent(this.state.id, () => <></>);
-    registerConfig(this.state.config, index);
+  componentDidUpdate() {
+    this._registerIfRequired();
   }
 
   componentWillUnmount() {
@@ -48,13 +49,13 @@ export default class Content extends React.Component {
   }
 
   _setupEventListeners() {
-    const { layoutManager } = this.context;
-
-    layoutManager.on('itemCreated', this._setGoldenLayoutItemInstance);
+    this.context.layoutManager.on('itemCreated', this._setGoldenLayoutItemInstance);
+    this.context.layoutManager.on('itemDestroyed', this._checkIfDestroyed);
   }
 
   _removeEventListeners() {
     this.context.layoutManager.off('itemCreated', this._setGoldenLayoutItemInstance);
+    this.context.layoutManager.off('itemDestroyed', this._checkIfDestroyed);
   }
 
   _setGoldenLayoutItemInstance = (item) => {
@@ -64,6 +65,27 @@ export default class Content extends React.Component {
       if (this.props.onLayoutItem) {
         this.props.onLayoutItem(item);
       }
+    }
+  }
+
+  _registerIfRequired() {
+    if (this.state.registered) {
+      return;
+    }
+
+    const { layoutManager, registerConfig, index } = this.context;
+    layoutManager.registerComponent(this.state.id, () => <></>);
+    registerConfig(this.state.config, index);
+
+    this.setState({ registered: true });
+  }
+
+  _checkIfDestroyed = (item) => {
+    if (item.config.id === this.state.id) {
+      this.context.layoutManager.unregisterComponent(this.state.id);
+      this.setState({ itemInstance: null, registered: false });
+      console.log('here, destroyed', this.state.id);
+      this.props.onClosed(this.state.id, this.config, item);
     }
   }
 
@@ -88,6 +110,7 @@ Content.propTypes = {
   height: PropTypes.number,
   isClosable: PropTypes.bool,
   title: PropTypes.string,
+  onClosed: PropTypes.func,
   id: PropTypes.oneOfType([
     PropTypes.number,
     PropTypes.string

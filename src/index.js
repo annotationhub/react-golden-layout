@@ -29,11 +29,14 @@ export { default as DragListener } from './js_es6/utils/DragListener'
 export { default as EventEmitter } from './js_es6/utils/EventEmitter'
 export { default as EventHub } from './js_es6/utils/EventHub'
 export { default as ReactComponentHandler } from './js_es6/utils/ReactComponentHandler'
+export { default as PortalLayoutComponent } from './js_es6/react/PortalLayoutComponent'
+export { default as PortalContent } from './js_es6/react/PortalContent';
 import { default as ReactGoldenLayout } from './js_es6/react/ReactLayoutComponent'
 
 import { default as Row } from './js_es6/react/Row';
 import { default as Column } from './js_es6/react/Column';
 import { default as Content } from './js_es6/react/Content';
+export { default as Content } from './js_es6/react/Content';
 import { default as ReactStack } from './js_es6/react/Stack';
 ReactGoldenLayout.Row = Row;
 ReactGoldenLayout.Column = Column;
@@ -41,3 +44,4 @@ ReactGoldenLayout.Content = Content;
 ReactGoldenLayout.Stack = ReactStack;
 
 export { ReactGoldenLayout as ReactGoldenLayout };
+

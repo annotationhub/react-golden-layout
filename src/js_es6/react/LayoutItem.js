@@ -161,10 +161,12 @@ export default class LayoutItem extends React.Component {
 
   _setupEventListeners() {
     this.context.layoutManager.on('itemCreated', this._setGoldenLayoutItemInstance);
+    this.context.layoutManager.on('itemDestroyed', this._checkIfDestroyed);
   }
 
   _removeEventListeners() {
     this.context.layoutManager.off('itemCreated', this._setGoldenLayoutItemInstance);
+    this.context.layoutManager.off('itemDestroyed', this._checkIfDestroyed);
   }
 
   /**
@@ -180,6 +182,12 @@ export default class LayoutItem extends React.Component {
       if (this.props.onLayoutItem) {
         this.props.onLayoutItem(item);
       }
+    }
+  }
+
+  _checkIfDestroyed = (item) => {
+    if (item.config.id === this.state.id) {
+      this.setState({ itemInstance: null, registered: false });
     }
   }
 
